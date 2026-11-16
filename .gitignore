@@ -1,0 +1,8 @@
+# NUNCA subir a chave de assinatura nem a senha
+*.jks
+*.keystore
+senha.txt
+android/tools/
+android/out*/
+android/proj/build/
+android/proj/assets/index.html

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.thiago.xequecombo" platformBuildVersionCode="34" platformBuildVersionName="14" android:versionCode="5" android:versionName="3.1">
+    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="34"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <application android:allowBackup="true" android:hardwareAccelerated="true" android:icon="@mipmap/ic_launcher" android:label="Xeque Combo">
+        <activity android:configChanges="orientation|screenSize|keyboardHidden|keyboard|screenLayout|uiMode" android:exported="true" android:name="com.thiago.xequecombo.MainActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
