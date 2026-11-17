@@ -4,6 +4,8 @@ const V="10.14.1",U="https://www.gstatic.com/firebasejs/"+V+"/";let M=null;
 window.XCFB={
   async load(){ if(M)return M; const [a,au,fs]=await Promise.all([import(U+"firebase-app.js"),import(U+"firebase-auth.js"),import(U+"firebase-firestore.js")]); const app=a.initializeApp(CFG); M={au,fs,auth:au.getAuth(app),db:fs.getFirestore(app)}; return M; },
   async signIn(){ const m=await this.load(); const r=await m.au.signInWithPopup(m.auth,new m.au.GoogleAuthProvider()); return {uid:r.user.uid,name:r.user.displayName,email:r.user.email}; },
+  async popupToken(){ const m=await this.load(); const r=await m.au.signInWithPopup(m.auth,new m.au.GoogleAuthProvider()); const c=m.au.GoogleAuthProvider.credentialFromResult(r); return c&&c.idToken; },
+  async signInToken(t){ const m=await this.load(); const r=await m.au.signInWithCredential(m.auth,m.au.GoogleAuthProvider.credential(t)); return {uid:r.user.uid,name:r.user.displayName,email:r.user.email}; },
   async signOut(){ const m=await this.load(); await m.au.signOut(m.auth); },
   onUser(cb){ return M.au.onAuthStateChanged(M.auth,u=>cb(u?{uid:u.uid,name:u.displayName,email:u.email}:null)); },
   async get(uid){ const m=await this.load(); const s=await m.fs.getDoc(m.fs.doc(m.db,"users",uid)); return s.exists()?s.data():null; },

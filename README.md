@@ -35,3 +35,6 @@ Para atualizar o site: `python tools/build_web.py`, depois `git add -A`, `git co
 
 ## Conta Google (versão web)
 Login com Google + salvamento do progresso na nuvem (Firebase, projeto `xadrez-fe040`). Os dados de cada pessoa ficam em `users/{uid}` no Firestore; as regras estão em `firebase/firestore.rules` (cole em *Firestore → Regras → Publicar*). A configuração do Firebase em `tools/fb_module.html` é pública; a segurança está nas regras. O login só existe no site (o APK usa WebView, onde o Google bloqueia o login).
+
+### Login com Google dentro do app (v3.6)
+O Google bloqueia login em WebView, então o clique do Google acontece no navegador: o app abre `.../xeque-combo/?app=1`, a página faz o login e devolve o token por `xequecombo://auth?t=...` (intent-filter no manifest, `Bridge.smali` entrega o token ao JavaScript). O app então entra no Firebase com `signInWithCredential`. Testado no emulador com um token falso (o Firebase respondeu `auth/invalid-credential`, ou seja, o caminho todo funciona). Limitação conhecida: o esquema `xequecombo://` não é verificado como um App Link, então outro app instalado poderia tentar interceptar o token (que vale por ~1 hora e só serve para este projeto).

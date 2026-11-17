@@ -1071,7 +1071,7 @@ function dailyRecv(fid,g){
 
 /* ---- início ---- */
 /* ---- atualização via GitHub Releases ---- */
-const APPV="3.5", UPD_REPO="pprotiopp-lab/xeque-combo";
+const APPV="3.6", UPD_REPO="pprotiopp-lab/xeque-combo";
 const verNum=v=>String(v||"").replace(/^[^0-9]*/,"").split(".").map(n=>parseInt(n,10)||0);
 const verNewer=(a,b)=>{const x=verNum(a),y=verNum(b);for(let i=0;i<Math.max(x.length,y.length);i++){const p=x[i]||0,q=y[i]||0;if(p!==q)return p>q;}return false;};
 let updUrl="";
@@ -1106,7 +1106,7 @@ function start(data){
   if(!/^[A-Z0-9]{8}$/.test(P.id||"")){P.id=rid(); saveP();}
   F=lsGet(K_FR)||{}; D=lsGet(K_DAY)||{};
   for(const k in F)F[k]=Object.assign({name:"Amigo",bio:"",pp:0,placed:false},F[k],{av:cleanAv(F[k].av)});
-  xcInit(); applySkin(); netInit(); paintVer(); cloudBoot(); setTimeout(()=>checkUpdate(false),1500);
+  xcInit(); applySkin(); netInit(); paintVer(); cloudBoot(); xcAppLoginPage(); cloudCheckToken(); setTimeout(()=>checkUpdate(false),1500);
   const sv=data&&data.G;
   if(validMatch(sv)&&data.screen==="game"){resetTurnState(); G=Object.assign({bot:-1,done:false,end:null,rv:null,an:null},sv); enterGame();}
   else go(data&&["bots","friends","profile","modes","history"].includes(data.screen)?data.screen:"menu");

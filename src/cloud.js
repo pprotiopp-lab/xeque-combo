@@ -2,7 +2,9 @@
 /* ===== conta Google: salva o progresso na nuvem e libera brindes (só na versão web) ===== */
 const cloud={user:null,timer:0,applying:false,busy:false,msg:""};
 const CLOUD_KEYS=[K_PROF,K_FR,K_HIST,K_DAY];
-const fbOk=()=>IS_WEB&&!!window.XCFB;
+const fbOk=()=>!!window.XCFB;
+const inApp=()=>!!(window.XCNative&&window.XCNative.take);
+const WEB_URL="https://pprotiopp-lab.github.io/xeque-combo/";
 function xcDirty(k){ try{ if(!cloud.user||cloud.applying||!CLOUD_KEYS.includes(k))return; clearTimeout(cloud.timer); cloud.timer=setTimeout(()=>cloudPush().catch(()=>{}),6000); }catch(e){} }
 async function cloudPush(){
   if(!cloud.user)return; cloud.busy=true; paintCloud();
@@ -34,7 +36,43 @@ async function cloudAfterLogin(fresh){
   if(!localHasData())cloudApply(doc);
   else ask("Essa conta já tem progresso salvo","Usar o progresso da nuvem (substitui o deste aparelho) ou manter o deste aparelho e enviá-lo para a conta?","Usar a nuvem","Manter este aparelho",()=>cloudApply(doc),()=>keepLocal());
 }
+/* no app: o Google bloqueia login dentro do WebView, então o clique do Google acontece no navegador e o app recebe o token de volta */
+let pollT=0;
+function cloudCheckToken(){
+  if(!inApp())return false; let t=null; try{t=XCNative.take();}catch(e){}
+  if(!t)return false; cloudTokenIn(String(t)); return true;
+}
+function cloudWait(){
+  clearInterval(pollT); const end=Date.now()+4*60000;
+  pollT=setInterval(()=>{ if(cloudCheckToken()||Date.now()>end){clearInterval(pollT); if(Date.now()>end){cloud.busy=false; paintCloud();}} },700);
+}
+async function cloudTokenIn(t){
+  if(!/^[\w-]+\.[\w-]+\.[\w-]+$/.test(t)){toast("O login voltou com um código inválido. Tente de novo."); cloud.busy=false; paintCloud(); return;}
+  cloud.busy=true; paintCloud();
+  try{ await XCFB.load(); const r=await XCFB.signInToken(t); cloud.user={uid:r.uid,name:r.name,email:r.email}; cloud.busy=false; paintCloud(); await cloudAfterLogin(true); }
+  catch(e){ cloud.busy=false; toast("Não deu para concluir o login no app ("+((e&&e.code)||"erro")+"). Tente de novo."); paintCloud(); }
+}
+addEventListener("focus",()=>cloudCheckToken()); addEventListener("pageshow",()=>cloudCheckToken()); document.addEventListener("visibilitychange",()=>{if(!document.hidden)cloudCheckToken();});
+/* site aberto pelo app (?app=1): faz o login e devolve o token para o app */
+function xcAppLoginPage(){
+  if(!IS_WEB||!/[?&]app=1\b/.test(location.search)||inApp())return;
+  const d=document.createElement("div"); d.className="sheet"; d.id="appLogin";
+  d.innerHTML='<div class="card"><h2>Entrar no app</h2><p id="alMsg">Entre com sua conta Google. Depois você volta para o app Xeque Combo já conectado.</p><button class="btn main" id="alGo">Continuar com Google</button></div>';
+  document.body.appendChild(d);
+  $("alGo").onclick=async()=>{
+    $("alGo").disabled=true; $("alMsg").textContent="Abrindo o Google…";
+    try{
+      const t=await XCFB.popupToken(); if(!t)throw new Error("sem token");
+      $("alMsg").textContent="Pronto! Voltando para o app…"; $("alGo").textContent="Abrir o app"; $("alGo").disabled=false;
+      const go=()=>{location.href="xequecombo://auth?t="+encodeURIComponent(t);}; $("alGo").onclick=go; go();
+    }catch(e){
+      const c=(e&&e.code)||""; $("alGo").disabled=false;
+      $("alMsg").textContent=/popup-closed|cancelled/.test(c)?"Login cancelado. Toque para tentar de novo.":/popup-blocked/.test(c)?"O navegador bloqueou a janela do Google. Permita pop-ups e toque de novo.":"Não deu para entrar agora. Toque para tentar de novo.";
+    }
+  };
+}
 async function cloudSignIn(){
+  if(inApp()){ cloud.busy=true; paintCloud(); toast("Entre com o Google no navegador. Você volta para o app sozinho."); cloudWait(); location.href=WEB_URL+"?app=1"; return; }
   cloud.busy=true; paintCloud();
   try{
     await XCFB.load(); const r=await XCFB.signIn();
@@ -54,7 +92,7 @@ function paintCloud(){
   if(cloud.user)el.innerHTML="<b>Conectado</b><p>"+esc(cloud.user.email||cloud.user.name||"Conta Google")+"</p>"+gifts+"<small>"+esc(cloud.msg||"Seu progresso é salvo automaticamente.")+'</small><div class="pbtns"><button class="chip" id="cloudSync"'+(cloud.busy?" disabled":"")+'>Salvar agora</button><button class="chip" id="cloudOut">Sair da conta</button></div>';
   else el.innerHTML="<b>Conta Google</b><p>Salve seu progresso na nuvem (troque de celular sem perder nada) e libere brindes exclusivos.</p>"+gifts+'<button class="btn main" id="cloudIn"'+(cloud.busy?" disabled":"")+">"+(cloud.busy?"Conectando…":"Entrar com Google")+"</button>";
 }
-$("cloudBox").onclick=e=>{const b=e.target.closest("button"); if(!b)return; if(b.id==="cloudWeb"){location.href="https://pprotiopp-lab.github.io/xeque-combo/";return;} if(b.id==="cloudIn")cloudSignIn(); else if(b.id==="cloudOut")cloudSignOut(); else if(b.id==="cloudSync")cloudPush();};
+$("cloudBox").onclick=e=>{const b=e.target.closest("button"); if(!b)return; if(b.id==="cloudIn")cloudSignIn(); else if(b.id==="cloudOut")cloudSignOut(); else if(b.id==="cloudSync")cloudPush();};
 /* ao abrir: se já entrou antes, a sessão volta sozinha */
 function cloudBoot(){
   if(!fbOk()||!P.linked)return;
