@@ -22,7 +22,7 @@ O app consulta `releases/latest` deste repositório ao abrir. Se a tag do Releas
 
 Para lançar uma versão nova:
 1. Suba `APP_VERSION` em `src/ui.js` e `versionCode`/`versionName` em `android/proj/apktool.yml` e `AndroidManifest.xml`.
-2. `python src/assemble.py`, compile e assine com a mesma keystore.
+2. Compile e assine com a mesma keystore: `python android/build_apk.py` (ver cabeçalho do script: precisa de apktool, build-tools e das variáveis `XC_KEYSTORE`, `XC_KSPASS`, `XC_ALIAS`). O APK sai em `dist/`.
 3. `gh release create v3.3 dist/xeque-combo-3.3.apk --title "Xeque Combo 3.3" --notes "o que mudou"` (as notas aparecem no aviso).
 
 > O aviso só existe a partir da v3.2: quem está na 3.1 precisa instalar a 3.2 manualmente uma vez.
