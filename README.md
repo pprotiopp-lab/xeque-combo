@@ -28,3 +28,7 @@ Para lançar uma versão nova:
 > O aviso só existe a partir da v3.2: quem está na 3.1 precisa instalar a 3.2 manualmente uma vez.
 
 > **Nota:** o `dist/xeque-combo-3.2.apk` foi montado fora deste repositório e traz o aviso de atualização com implementação própria (`checkUpdate`, botão de versão, classe `Nav`). O aviso em `src/ui.js` e `Client.smali` é uma versão alternativa e não bate com esse APK. Ao mexer no código, parta do `assets/index.html` desse APK ou reconcilie as duas.
+
+## Versão de navegador (iPhone e qualquer celular)
+Jogue em **https://pprotiopp-lab.github.io/xeque-combo/** (hospedado pelo GitHub Pages, a partir da pasta `docs/`). No iPhone: Safari → Compartilhar → *Adicionar à Tela de Início*.
+Para atualizar o site: `python tools/build_web.py`, depois `git add -A`, `git commit` e `git push`. Em ~1 minuto todo mundo recebe a versão nova (o botão de versão no menu recarrega a página).
