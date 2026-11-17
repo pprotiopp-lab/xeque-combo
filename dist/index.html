@@ -1874,7 +1874,7 @@ function dailyRecv(fid,g){
 
 /* ---- início ---- */
 /* ---- atualização via GitHub Releases ---- */
-const APPV="3.4", UPD_REPO="pprotiopp-lab/xeque-combo";
+const APPV="3.5", UPD_REPO="pprotiopp-lab/xeque-combo";
 const verNum=v=>String(v||"").replace(/^[^0-9]*/,"").split(".").map(n=>parseInt(n,10)||0);
 const verNewer=(a,b)=>{const x=verNum(a),y=verNum(b);for(let i=0;i<Math.max(x.length,y.length);i++){const p=x[i]||0,q=y[i]||0;if(p!==q)return p>q;}return false;};
 let updUrl="";
@@ -2205,13 +2205,13 @@ async function cloudSignIn(){
 async function cloudSignOut(){ try{await XCFB.signOut();}catch(e){} cloud.user=null; cloud.msg=""; P.linked=true; saveP(); paintCloud(); toast("Você saiu da conta. Os brindes continuam liberados."); }
 function paintCloud(){
   const el=$("cloudBox"); if(!el)return;
-  if(!fbOk()){el.innerHTML="<b>Conta Google</b><p>Disponível na versão do site (iPhone e navegador). Entrando lá, você salva o progresso na nuvem e libera um tabuleiro, uma moldura e uma medalha exclusivos.</p>"; return;}
+  if(!fbOk()){el.innerHTML="<b>Conta Google</b><p>O login com Google funciona na versão do site. Lá você salva o progresso na nuvem e libera um tabuleiro, uma moldura e uma medalha exclusivos.</p><small>O progresso do site é separado do deste app.</small>"+(IS_WEB?"":'<button class="btn main" id="cloudWeb">Abrir o site</button>'); return;}
   const ck=P.linked?"✓ ":"";
   const gifts='<div class="gifts"><span class="gift">'+ck+"Tabuleiro Constelação</span><span class=\"gift\">"+ck+"Moldura Conectado</span><span class=\"gift\">"+ck+"Medalha Conectado</span></div>";
   if(cloud.user)el.innerHTML="<b>Conectado</b><p>"+esc(cloud.user.email||cloud.user.name||"Conta Google")+"</p>"+gifts+"<small>"+esc(cloud.msg||"Seu progresso é salvo automaticamente.")+'</small><div class="pbtns"><button class="chip" id="cloudSync"'+(cloud.busy?" disabled":"")+'>Salvar agora</button><button class="chip" id="cloudOut">Sair da conta</button></div>';
   else el.innerHTML="<b>Conta Google</b><p>Salve seu progresso na nuvem (troque de celular sem perder nada) e libere brindes exclusivos.</p>"+gifts+'<button class="btn main" id="cloudIn"'+(cloud.busy?" disabled":"")+">"+(cloud.busy?"Conectando…":"Entrar com Google")+"</button>";
 }
-$("cloudBox").onclick=e=>{const b=e.target.closest("button"); if(!b)return; if(b.id==="cloudIn")cloudSignIn(); else if(b.id==="cloudOut")cloudSignOut(); else if(b.id==="cloudSync")cloudPush();};
+$("cloudBox").onclick=e=>{const b=e.target.closest("button"); if(!b)return; if(b.id==="cloudWeb"){location.href="https://pprotiopp-lab.github.io/xeque-combo/";return;} if(b.id==="cloudIn")cloudSignIn(); else if(b.id==="cloudOut")cloudSignOut(); else if(b.id==="cloudSync")cloudPush();};
 /* ao abrir: se já entrou antes, a sessão volta sozinha */
 function cloudBoot(){
   if(!fbOk()||!P.linked)return;
