@@ -1,4 +1,4 @@
-"""Gera o APK assinado a partir do src/.
+r"""Gera o APK assinado a partir do src/.
 Uso (PowerShell):
   $env:XC_KEYSTORE="C:\caminho\xeque-combo.jks"; $env:XC_KSPASS="senha"; $env:XC_ALIAS="xequecombo"
   python android/build_apk.py
@@ -18,10 +18,11 @@ ver = re.search(r"versionName: '([^']+)'", rd(os.path.join(PROJ, "apktool.yml"))
 os.makedirs(OUT, exist_ok=True)
 unsigned = os.path.join(OUT, "unsigned.apk"); aligned = os.path.join(OUT, "aligned.apk")
 final = os.path.join(ROOT, "dist", "xeque-combo-%s.apk" % ver)
-apktool = os.environ.get("APKTOOL") or shutil.which("apktool")
+jar = os.path.join(A, "tools", "apktool.jar")
+apktool = os.environ.get("APKTOOL") or (jar if os.path.exists(jar) else shutil.which("apktool"))
 if not apktool: sys.exit("apktool não encontrado (defina APKTOOL ou ponha no PATH).")
-shell = apktool.lower().endswith((".bat", ".cmd"))
-subprocess.check_call([apktool, "b", PROJ, "-o", unsigned, "-f"], shell=shell)
+cmd = ["java", "-jar", apktool] if apktool.lower().endswith(".jar") else [apktool]
+subprocess.check_call(cmd + ["b", PROJ, "-o", unsigned, "-f"], shell=apktool.lower().endswith((".bat", ".cmd")))
 bt = sorted(glob.glob(os.path.expandvars(r"%LOCALAPPDATA%\Android\Sdk\build-tools\*")))
 if not bt: sys.exit("build-tools do Android não encontrado.")
 ext = ".bat" if os.name == "nt" else ""
