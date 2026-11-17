@@ -620,6 +620,7 @@ window.XCFB={
   async get(uid){ const m=await this.load(); const s=await m.fs.getDoc(m.fs.doc(m.db,"users",uid)); return s.exists()?s.data():null; },
   async set(uid,o){ const m=await this.load(); await m.fs.setDoc(m.fs.doc(m.db,"users",uid),o); }
 };
+window.dispatchEvent(new Event("xcfb-ready"));
 </script>
 
 <script id="engine">
@@ -1884,7 +1885,7 @@ function dailyRecv(fid,g){
 
 /* ---- início ---- */
 /* ---- atualização via GitHub Releases ---- */
-const APPV="3.6", UPD_REPO="pprotiopp-lab/xeque-combo";
+const APPV="3.7", UPD_REPO="pprotiopp-lab/xeque-combo";
 const verNum=v=>String(v||"").replace(/^[^0-9]*/,"").split(".").map(n=>parseInt(n,10)||0);
 const verNewer=(a,b)=>{const x=verNum(a),y=verNum(b);for(let i=0;i<Math.max(x.length,y.length);i++){const p=x[i]||0,q=y[i]||0;if(p!==q)return p>q;}return false;};
 let updUrl="";
@@ -2214,6 +2215,7 @@ function cloudWait(){
   pollT=setInterval(()=>{ if(cloudCheckToken()||Date.now()>end){clearInterval(pollT); if(Date.now()>end){cloud.busy=false; paintCloud();}} },700);
 }
 async function cloudTokenIn(t){
+  if(!window.XCFB){addEventListener("xcfb-ready",()=>cloudTokenIn(t),{once:true}); return;}
   if(!/^[\w-]+\.[\w-]+\.[\w-]+$/.test(t)){toast("O login voltou com um código inválido. Tente de novo."); cloud.busy=false; paintCloud(); return;}
   cloud.busy=true; paintCloud();
   try{ await XCFB.load(); const r=await XCFB.signInToken(t); cloud.user={uid:r.uid,name:r.name,email:r.email}; cloud.busy=false; paintCloud(); await cloudAfterLogin(true); }
@@ -2262,9 +2264,13 @@ function paintCloud(){
 $("cloudBox").onclick=e=>{const b=e.target.closest("button"); if(!b)return; if(b.id==="cloudIn")cloudSignIn(); else if(b.id==="cloudOut")cloudSignOut(); else if(b.id==="cloudSync")cloudPush();};
 /* ao abrir: se já entrou antes, a sessão volta sozinha */
 function cloudBoot(){
-  if(!fbOk()||!P.linked)return;
-  XCFB.load().then(()=>XCFB.onUser(u=>{ cloud.user=u?{uid:u.uid,name:u.name,email:u.email}:null; paintCloud(); if(u)cloudAfterLogin(false); })).catch(()=>{});
+  if(!P.linked)return;
+  if(!window.XCFB){addEventListener("xcfb-ready",cloudBoot,{once:true}); return;} /* o módulo do Firebase carrega depois da página */
+  cloud.booted=true;
+  XCFB.load().then(()=>XCFB.onUser(u=>{ cloud.checked=true; cloud.user=u?{uid:u.uid,name:u.name,email:u.email}:null; paintCloud(); if(u)cloudAfterLogin(false); })).catch(()=>{});
 }
+addEventListener("xcfb-ready",()=>paintCloud());
+window.__xcState=()=>({booted:!!cloud.booted,checked:!!cloud.checked,user:!!cloud.user,linked:!!P.linked});
 
 
 try{window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude.hot.snapshot(()=>({screen,G:G&&(G.kind==="bot"||G.kind==="local")&&!G.end?{kind:G.kind,mode:G.mode,bot:G.bot,my:G.my,spin:G.spin,tl:G.tl,clock:G.clock}:null}));}catch(e){}

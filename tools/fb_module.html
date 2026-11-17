@@ -11,4 +11,5 @@ window.XCFB={
   async get(uid){ const m=await this.load(); const s=await m.fs.getDoc(m.fs.doc(m.db,"users",uid)); return s.exists()?s.data():null; },
   async set(uid,o){ const m=await this.load(); await m.fs.setDoc(m.fs.doc(m.db,"users",uid),o); }
 };
+window.dispatchEvent(new Event("xcfb-ready"));
 </script>

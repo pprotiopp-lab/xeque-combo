@@ -47,6 +47,7 @@ function cloudWait(){
   pollT=setInterval(()=>{ if(cloudCheckToken()||Date.now()>end){clearInterval(pollT); if(Date.now()>end){cloud.busy=false; paintCloud();}} },700);
 }
 async function cloudTokenIn(t){
+  if(!window.XCFB){addEventListener("xcfb-ready",()=>cloudTokenIn(t),{once:true}); return;}
   if(!/^[\w-]+\.[\w-]+\.[\w-]+$/.test(t)){toast("O login voltou com um código inválido. Tente de novo."); cloud.busy=false; paintCloud(); return;}
   cloud.busy=true; paintCloud();
   try{ await XCFB.load(); const r=await XCFB.signInToken(t); cloud.user={uid:r.uid,name:r.name,email:r.email}; cloud.busy=false; paintCloud(); await cloudAfterLogin(true); }
@@ -95,6 +96,10 @@ function paintCloud(){
 $("cloudBox").onclick=e=>{const b=e.target.closest("button"); if(!b)return; if(b.id==="cloudIn")cloudSignIn(); else if(b.id==="cloudOut")cloudSignOut(); else if(b.id==="cloudSync")cloudPush();};
 /* ao abrir: se já entrou antes, a sessão volta sozinha */
 function cloudBoot(){
-  if(!fbOk()||!P.linked)return;
-  XCFB.load().then(()=>XCFB.onUser(u=>{ cloud.user=u?{uid:u.uid,name:u.name,email:u.email}:null; paintCloud(); if(u)cloudAfterLogin(false); })).catch(()=>{});
+  if(!P.linked)return;
+  if(!window.XCFB){addEventListener("xcfb-ready",cloudBoot,{once:true}); return;} /* o módulo do Firebase carrega depois da página */
+  cloud.booted=true;
+  XCFB.load().then(()=>XCFB.onUser(u=>{ cloud.checked=true; cloud.user=u?{uid:u.uid,name:u.name,email:u.email}:null; paintCloud(); if(u)cloudAfterLogin(false); })).catch(()=>{});
 }
+addEventListener("xcfb-ready",()=>paintCloud());
+window.__xcState=()=>({booted:!!cloud.booted,checked:!!cloud.checked,user:!!cloud.user,linked:!!P.linked});
