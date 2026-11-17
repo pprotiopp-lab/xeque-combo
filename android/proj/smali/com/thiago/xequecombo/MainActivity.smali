@@ -24,8 +24,8 @@
     invoke-virtual {v1, v2}, Landroid/webkit/WebSettings;->setDomStorageEnabled(Z)V
     const/4 v2, 0x0
     invoke-virtual {v1, v2}, Landroid/webkit/WebSettings;->setMediaPlaybackRequiresUserGesture(Z)V
-    new-instance v1, Landroid/webkit/WebViewClient;
-    invoke-direct {v1}, Landroid/webkit/WebViewClient;-><init>()V
+    new-instance v1, Lcom/thiago/xequecombo/Client;
+    invoke-direct {v1}, Lcom/thiago/xequecombo/Client;-><init>()V
     invoke-virtual {v0, v1}, Landroid/webkit/WebView;->setWebViewClient(Landroid/webkit/WebViewClient;)V
     :c_start
     new-instance v1, Lcom/thiago/xequecombo/Chrome;

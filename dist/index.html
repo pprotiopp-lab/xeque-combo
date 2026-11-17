@@ -496,6 +496,15 @@ body[data-screen="history"] #history{display:flex}
     <button class="btn" id="chatClose">Fechar</button>
   </div>
 </div>
+<div class="sheet" id="upd" hidden>
+  <div class="card" role="dialog" aria-labelledby="updTitle">
+    <h2 id="updTitle"></h2>
+    <p id="updSub"></p>
+    <p id="updNotes" hidden style="white-space:pre-wrap;opacity:.8;font-size:.9em"></p>
+    <button class="btn main" id="updGo">Atualizar</button>
+    <button class="btn" id="updLater">Depois</button>
+  </div>
+</div>
 <div id="toast" hidden role="status"></div>
 
 <script id="engine">
@@ -1724,6 +1733,32 @@ function start(data){
 }
 try{window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude.hot.snapshot(()=>({screen,G:G&&(G.kind==="bot"||G.kind==="local")&&!G.end?{kind:G.kind,mode:G.mode,bot:G.bot,my:G.my,spin:G.spin,tl:G.tl,clock:G.clock}:null}));}catch(e){}
 if(window.claude&&window.claude.hot&&window.claude.hot.ready)window.claude.hot.ready(start); else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{});
+
+/* ---- aviso de atualização (GitHub Releases) ---- */
+const APP_VERSION="3.2", REPO="pprotiopp-lab/xeque-combo";
+(function(){
+  const num=v=>String(v).replace(/^v/i,"").split(".").map(n=>parseInt(n,10)||0);
+  const newer=(a,b)=>{const x=num(a),y=num(b);for(let i=0;i<Math.max(x.length,y.length);i++){const d=(x[i]||0)-(y[i]||0);if(d)return d>0;}return false;};
+  const store=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){}return null;};
+  async function check(){
+    const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),8000);
+    try{
+      const r=await fetch("https://api.github.com/repos/"+REPO+"/releases/latest",{signal:ctl.signal,headers:{Accept:"application/vnd.github+json"}});
+      if(!r.ok)return; const j=await r.json(); const tag=j.tag_name; if(!tag||!newer(tag,APP_VERSION))return;
+      if(store("xc_skip")===tag)return;
+      const apk=(j.assets||[]).find(a=>/\.apk$/i.test(a.name));
+      const url=apk?apk.browser_download_url:j.html_url;
+      $("updTitle").textContent="Versão "+tag.replace(/^v/i,"")+" saiu!";
+      $("updSub").textContent="Você está na "+APP_VERSION+". Baixe o novo APK e instale por cima: seu PP, amigos e histórico continuam.";
+      $("updNotes").textContent=(j.body||"").trim().slice(0,400);
+      $("updNotes").hidden=!$("updNotes").textContent;
+      $("updGo").onclick=()=>{location.href=url;};
+      $("updLater").onclick=()=>{store("xc_skip",tag);$("upd").hidden=true;};
+      $("upd").hidden=false;
+    }catch(e){}finally{clearTimeout(t);}
+  }
+  setTimeout(check,2500);
+})();
 
 /* ---- fundo: anéis flutuando ---- */
 (function(){

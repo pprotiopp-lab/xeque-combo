@@ -1,4 +1,6 @@
-css=open('old.css').read()+open('new.css').read()+"\n.row.you{background:rgba(255,92,159,.16);border-color:var(--rosa)}\n.row.you .pp{color:var(--ouro)}\n"
+import os
+D=os.path.dirname(os.path.abspath(__file__)); os.chdir(D)
+css=open('old.css',encoding='utf-8').read()+open('new.css',encoding='utf-8').read()+"\n.row.you{background:rgba(255,92,159,.16);border-color:var(--rosa)}\n.row.you .pp{color:var(--ouro)}\n"
 head='''<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -14,5 +16,5 @@ head='''<!DOCTYPE html>
 <style>'''+css+'''</style>
 </head>
 '''
-out=head+open('body.html').read()+'\n<script id="engine">'+open('engine.js').read()+'</script>\n<!--PEER-->\n<script>\n'+open('ui.js').read()+'</script>\n</body>\n</html>\n'
-open('/home/claude/xeque-combo/index.html','w').write(out); print(len(out))
+out=head+open('body.html',encoding='utf-8').read()+'\n<script id="engine">'+open('engine.js',encoding='utf-8').read()+'</script>\n<!--PEER-->\n<script>\n'+open('ui.js',encoding='utf-8').read()+'</script>\n</body>\n</html>\n'
+open(os.path.join(D,'..','dist','index.html'),'w',encoding='utf-8').write(out); print(len(out))
