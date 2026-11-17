@@ -32,3 +32,6 @@ Para lançar uma versão nova:
 ## Versão de navegador (iPhone e qualquer celular)
 Jogue em **https://pprotiopp-lab.github.io/xeque-combo/** (hospedado pelo GitHub Pages, a partir da pasta `docs/`). No iPhone: Safari → Compartilhar → *Adicionar à Tela de Início*.
 Para atualizar o site: `python tools/build_web.py`, depois `git add -A`, `git commit` e `git push`. Em ~1 minuto todo mundo recebe a versão nova (o botão de versão no menu recarrega a página).
+
+## Conta Google (versão web)
+Login com Google + salvamento do progresso na nuvem (Firebase, projeto `xadrez-fe040`). Os dados de cada pessoa ficam em `users/{uid}` no Firestore; as regras estão em `firebase/firestore.rules` (cole em *Firestore → Regras → Publicar*). A configuração do Firebase em `tools/fb_module.html` é pública; a segurança está nas regras. O login só existe no site (o APK usa WebView, onde o Google bloqueia o login).

@@ -171,3 +171,12 @@ body[data-bd="6"] .board-wrap{background:linear-gradient(135deg,#ff9fc3,#ffffff 
 body[data-bd="7"]{--stage:#14141c;--stage-hi:#34344a}
 body[data-bd="7"] .board-wrap{background:linear-gradient(135deg,#ff3d8b,#62e0ff 55%,#ff3d8b)}
 body[data-bd="1"] .sq i,body[data-bd="2"] .sq i,body[data-bd="3"] .sq i,body[data-bd="4"] .sq i,body[data-bd="6"] .sq i{color:rgba(30,20,50,.55)}
+
+/* ===== v3.5: conta Google e brindes ===== */
+.cloudbox{background:linear-gradient(120deg,rgba(98,224,255,.12),rgba(255,92,159,.12));border:1.5px solid rgba(255,255,255,.14);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.cloudbox>b{font-family:var(--display);font-style:italic;font-weight:800;font-size:17px}
+.cloudbox p{font-size:13.5px;color:var(--nevoa)}.cloudbox small{font-size:12px;color:var(--nevoa)}
+.gifts{display:flex;flex-wrap:wrap;gap:6px}.gift{font-size:12px;padding:4px 10px;border-radius:999px;background:rgba(255,212,94,.14);border:1px solid rgba(255,212,94,.4);color:var(--ouro)}
+.av.fr6{box-shadow:0 0 0 2px #ffd45e,0 0 0 4px #62e0ff,0 0 14px rgba(255,212,94,.8)}
+body[data-bd="8"]{--stage:#101a3d;--stage-hi:#233a7a}
+body[data-bd="8"] .board-wrap{background:linear-gradient(135deg,#ffd45e,#ff86b8 55%,#62e0ff)}

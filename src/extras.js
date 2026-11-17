@@ -24,6 +24,7 @@ const MEDALS=[
  {id:"pz1",n:"Primeiro puzzle",d:"Resolva um puzzle diário.",g:"r",t:0,ok:p=>p.stat.pz>=1},
  {id:"pz10",n:"Detetive",d:"Resolva 10 puzzles.",g:"r",t:1,ok:p=>p.stat.pz>=10},
  {id:"pz30",n:"Gênio tático",d:"Resolva 30 puzzles.",g:"r",t:2,ok:p=>p.stat.pz>=30},
+ {id:"cloud",n:"Conectado",d:"Conecte sua conta Google na versão web.",g:"k",t:1,ok:p=>!!p.linked},
  {id:"pzs7",n:"Sequência de 7",d:"Resolva o puzzle do dia por 7 dias seguidos.",g:"q",t:3,ok:p=>p.stat.pzBest>=7}
 ];
 const MEDAL_IDS=new Set(MEDALS.map(m=>m.id));
@@ -35,7 +36,7 @@ function xcInit(){
   for(const k of ["bb","vs","medals"])if(!P[k]||typeof P[k]!=="object"||Array.isArray(P[k]))P[k]={};
   if(!Array.isArray(P.ppH))P.ppH=[]; P.ppH=P.ppH.map(x=>x|0).filter(x=>x>=0).slice(-30);
   if(!P.pzd||typeof P.pzd!=='object')P.pzd={day:0,streak:0}; P.pzd.day=P.pzd.day|0; P.pzd.streak=P.pzd.streak|0;
-  P.bd=BOARDS[P.bd]?P.bd|0:0; P.sp=SPACKS[P.sp]?P.sp|0:0; xcApplyBoard();
+  P.linked=!!P.linked; P.bd=BOARDS[P.bd]?P.bd|0:0; if(BOARDS[P.bd].lock&&!P.linked)P.bd=0; if((P.av.fr|0)>=FRAMES.length||((P.av.fr|0)===FRAMES.length-1&&!P.linked))P.av.fr=0; P.sp=SPACKS[P.sp]?P.sp|0:0; xcApplyBoard();
   xcMedals(false);
 }
 function xcMedals(announce){
@@ -74,7 +75,7 @@ function xcPaintProfile(){
   const n=Object.keys(P.medals).filter(k=>MEDAL_IDS.has(k)).length;
   $("mdCount").textContent=n+"/"+MEDALS.length;
   $("pMedals").innerHTML=MEDALS.map(m=>medalHtml(m,!!P.medals[m.id])).join("");
-  xcPaintLook();
+  xcPaintLook(); paintCloud();
   $("pChart").innerHTML=chartHtml(P.ppH,"Conclua a classificação online e jogue mais partidas para ver o gráfico.");
 }
 $("pMedals").onclick=e=>{const b=e.target.closest("button"); if(!b)return; const m=MEDALS.find(x=>x.id===b.dataset.md); if(!m)return; const when=P.medals[m.id]; toast(m.n+": "+m.d+(when?" ✓ "+new Date(when).toLocaleDateString("pt-BR"):""));};
@@ -126,7 +127,8 @@ const BOARDS=[
  {n:"Mármore",d:"#8b8f99",l:"#ececf2"},
  {n:"Meia-noite",d:"#14163a",l:"#2c3070"},
  {n:"Sakura",d:"#d58aa8",l:"#ffe8f0"},
- {n:"Taiko",d:"#14141c",l:"#34344a"}
+ {n:"Taiko",d:"#14141c",l:"#34344a"},
+ {n:"Constelação",d:"#101a3d",l:"#233a7a",lock:1}
 ];
 function xcApplyBoard(){document.body.dataset.bd=BOARDS[P.bd]?P.bd:0;}
 /* ===== pacotes de som dos lances ===== */
@@ -168,10 +170,10 @@ function sfxMove(byMe,jd,next,mover){
   }
 }
 function xcPaintLook(){
-  $("pBoard").innerHTML=BOARDS.map((b,i)=>'<button data-bd="'+i+'" aria-pressed="'+(P.bd===i)+'"><i class="bdp" style="background:conic-gradient('+b.l+" 25%,"+b.d+" 0 50%,"+b.l+" 0 75%,"+b.d+' 0) 0 0/14px 14px"></i>'+b.n+"</button>").join("");
+  $("pBoard").innerHTML=BOARDS.map((b,i)=>'<button data-bd="'+i+'" aria-pressed="'+(P.bd===i)+'"><i class="bdp" style="background:conic-gradient('+b.l+" 25%,"+b.d+" 0 50%,"+b.l+" 0 75%,"+b.d+' 0) 0 0/14px 14px"></i>'+b.n+(b.lock&&!P.linked?" (Google)":"")+"</button>").join("");
   $("pSnd").innerHTML=SPACKS.map((n,i)=>'<button data-sp="'+i+'" aria-pressed="'+(P.sp===i)+'">'+n+"</button>").join("");
 }
-$("pBoard").onclick=e=>{const b=e.target.closest("button"); if(!b)return; P.bd=+b.dataset.bd; xcApplyBoard(); saveP(); xcPaintLook();};
+$("pBoard").onclick=e=>{const b=e.target.closest("button"); if(!b)return; if(BOARDS[+b.dataset.bd].lock&&!P.linked){toast("Conecte sua conta Google no perfil para liberar esse tabuleiro.");return;} P.bd=+b.dataset.bd; xcApplyBoard(); saveP(); xcPaintLook();};
 $("pSnd").onclick=e=>{
   const b=e.target.closest("button"); if(!b)return; P.sp=+b.dataset.sp; saveP(); xcPaintLook(); unlockAudio();
   sfxMove(true,JUDGE[0],{st:{w:{combo:4},b:{combo:0}},cap:false,chk:false,over:false},"w"); setTimeout(()=>sfxMove(false,JUDGE[1],{st:{w:{combo:0},b:{combo:1}},cap:true,chk:false,over:false},"b"),260);
@@ -236,3 +238,5 @@ function puzEnd(end){ /* chamado no lugar do fim de partida normal */
   saveP(); xcMedals(true);
   setTimeout(()=>{ if(!G||G!==z.g)return; ask("Puzzle resolvido!",z.daily?"Sequência: "+d.streak+(d.streak===1?" dia":" dias")+". Volte amanhã para o próximo.":"Boa! Mais um para a conta.","Voltar","Outro puzzle",()=>leaveNow(),()=>puzExtra()); },reduce?100:900);
 }
+
+/*@CLOUD@*/

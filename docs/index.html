@@ -383,6 +383,15 @@ body[data-bd="7"]{--stage:#14141c;--stage-hi:#34344a}
 body[data-bd="7"] .board-wrap{background:linear-gradient(135deg,#ff3d8b,#62e0ff 55%,#ff3d8b)}
 body[data-bd="1"] .sq i,body[data-bd="2"] .sq i,body[data-bd="3"] .sq i,body[data-bd="4"] .sq i,body[data-bd="6"] .sq i{color:rgba(30,20,50,.55)}
 
+/* ===== v3.5: conta Google e brindes ===== */
+.cloudbox{background:linear-gradient(120deg,rgba(98,224,255,.12),rgba(255,92,159,.12));border:1.5px solid rgba(255,255,255,.14);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.cloudbox>b{font-family:var(--display);font-style:italic;font-weight:800;font-size:17px}
+.cloudbox p{font-size:13.5px;color:var(--nevoa)}.cloudbox small{font-size:12px;color:var(--nevoa)}
+.gifts{display:flex;flex-wrap:wrap;gap:6px}.gift{font-size:12px;padding:4px 10px;border-radius:999px;background:rgba(255,212,94,.14);border:1px solid rgba(255,212,94,.4);color:var(--ouro)}
+.av.fr6{box-shadow:0 0 0 2px #ffd45e,0 0 0 4px #62e0ff,0 0 14px rgba(255,212,94,.8)}
+body[data-bd="8"]{--stage:#101a3d;--stage-hi:#233a7a}
+body[data-bd="8"] .board-wrap{background:linear-gradient(135deg,#ffd45e,#ff86b8 55%,#62e0ff)}
+
 .row.you{background:rgba(255,92,159,.16);border-color:var(--rosa)}
 .row.you .pp{color:var(--ouro)}
 </style>
@@ -473,6 +482,7 @@ body[data-bd="1"] .sq i,body[data-bd="2"] .sq i,body[data-bd="3"] .sq i,body[dat
     </div>
     <input type="file" id="fileIn" accept="image/*">
   </div>
+  <div class="cloudbox" id="cloudBox"></div>
   <div class="field"><label class="lbl" for="pName">Nome</label><input class="inp" id="pName" maxlength="16" autocomplete="off"></div>
   <div class="field"><label class="lbl" for="pBio">Frase do perfil</label><input class="inp" id="pBio" maxlength="48" autocomplete="off" placeholder="Ex.: só jogo gambito"></div>
   <div class="field"><span class="lbl">Avatar</span><div class="sw" id="pGl"></div></div>
@@ -596,6 +606,19 @@ body[data-bd="1"] .sq i,body[data-bd="2"] .sq i,body[data-bd="3"] .sq i,body[dat
   </div>
 </div>
 <div id="toast" hidden role="status"></div>
+
+<script type="module">
+const CFG={apiKey:"AIzaSyCFEvnJqu4RST2YhSUDHOImE9oPwQuHBhE",authDomain:"xadrez-fe040.firebaseapp.com",projectId:"xadrez-fe040",storageBucket:"xadrez-fe040.firebasestorage.app",messagingSenderId:"975600876305",appId:"1:975600876305:web:b5b12a35fe269318ceeab0"};
+const V="10.14.1",U="https://www.gstatic.com/firebasejs/"+V+"/";let M=null;
+window.XCFB={
+  async load(){ if(M)return M; const [a,au,fs]=await Promise.all([import(U+"firebase-app.js"),import(U+"firebase-auth.js"),import(U+"firebase-firestore.js")]); const app=a.initializeApp(CFG); M={au,fs,auth:au.getAuth(app),db:fs.getFirestore(app)}; return M; },
+  async signIn(){ const m=await this.load(); const r=await m.au.signInWithPopup(m.auth,new m.au.GoogleAuthProvider()); return {uid:r.user.uid,name:r.user.displayName,email:r.user.email}; },
+  async signOut(){ const m=await this.load(); await m.au.signOut(m.auth); },
+  onUser(cb){ return M.au.onAuthStateChanged(M.auth,u=>cb(u?{uid:u.uid,name:u.displayName,email:u.email}:null)); },
+  async get(uid){ const m=await this.load(); const s=await m.fs.getDoc(m.fs.doc(m.db,"users",uid)); return s.exists()?s.data():null; },
+  async set(uid,o){ const m=await this.load(); await m.fs.setDoc(m.fs.doc(m.db,"users",uid),o); }
+};
+</script>
 
 <script id="engine">
 /* ===== Motor de xadrez (sem DOM; também roda num Worker) ===== */
@@ -819,7 +842,7 @@ const SKINS=[
 ];
 /* formatos de peça (CSS em body[data-ps]) e extras de perfil */
 const PSTY=["Círculo","Hit circle","Slider","Anel","Minimal","Hexágono","Diamante","Pixel","Gel"];
-const FRAMES=["Nenhuma","Ouro","Ciano","Neon","Arco-íris","Pulso"];
+const FRAMES=["Nenhuma","Ouro","Ciano","Neon","Arco-íris","Pulso","Conectado"];
 const BANNERS=["linear-gradient(120deg,rgba(255,92,159,.28),rgba(98,224,255,.22))","linear-gradient(120deg,#ff6a3d,#7a4ad8)","linear-gradient(120deg,#12a64a,#0b6e86)","linear-gradient(120deg,#ffd36e,#ee6fa4)","linear-gradient(120deg,#2a1a6e,#0b110d)","linear-gradient(120deg,#3d56d6,#62e0ff)"];
 /* 15 IAs de treino: d = profundidade, noise = imprecisão, blun = chance de lance aleatório, w = gostos */
 const BOTS=[
@@ -856,7 +879,7 @@ const okImg=s=>typeof s==="string"&&s.length<40000&&/^data:image\/(jpeg|png);bas
 function cleanAv(a){a=a&&typeof a==="object"?a:{}; return {g:GL[a.g]?a.g:"k",c:(a.c|0)>=0&&(a.c|0)<AVC.length?a.c|0:0,img:okImg(a.img)?a.img:null,fr:(a.fr|0)>0&&(a.fr|0)<FRAMES.length?a.fr|0:0};}
 function avH(av,cls){av=cleanAv(av); return '<span class="av '+(av.fr?"fr"+av.fr+" ":"")+(cls||"")+'" style="'+(av.img?"background-image:url("+av.img+")":"background:"+AVC[av.c])+'">'+(av.img?"":GL[av.g]+VS)+"</span>";}
 function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||"null");}catch(e){return null;}}
-function lsSet(k,v){try{v===null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function lsSet(k,v){try{v===null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v));}catch(e){} if(typeof xcDirty==="function")xcDirty(k);}
 const saveP=()=>lsSet(K_PROF,P),saveF=()=>lsSet(K_FR,F),saveD=()=>lsSet(K_DAY,D);
 function saveMatch(){ if(!G||(G.kind!=="bot"&&G.kind!=="local"))return; lsSet(K_MATCH,G.end?null:{kind:G.kind,mode:G.mode,bot:G.bot,my:G.my,spin:G.spin,tl:G.tl,clock:G.clock}); }
 function validMatch(d){return d&&Array.isArray(d.tl)&&d.tl.length&&d.tl[0].s&&d.tl[0].ids&&MODES[d.mode]&&(d.kind==="local"||(d.kind==="bot"&&BOTS[d.bot]));}
@@ -997,7 +1020,7 @@ $("pBio").onchange=()=>profileChanged();
 $("pGl").onclick=e=>{const b=e.target.closest("button"); if(!b)return; P.av.g=b.dataset.g; P.av.img=null; profileChanged();};
 $("pCol").onclick=e=>{const b=e.target.closest("button"); if(!b)return; P.av.c=+b.dataset.c; profileChanged();};
 $("pSkin").onclick=e=>{const b=e.target.closest("button"); if(!b)return; P.skin=+b.dataset.s; applySkin(); profileChanged();};
-$("pFrame").onclick=e=>{const b=e.target.closest("button"); if(!b)return; P.av.fr=+b.dataset.f; profileChanged();};
+$("pFrame").onclick=e=>{const b=e.target.closest("button"); if(!b)return; if(+b.dataset.f===FRAMES.length-1&&!P.linked){toast("Conecte sua conta Google no perfil para liberar essa moldura.");return;} P.av.fr=+b.dataset.f; profileChanged();};
 $("pBanner").onclick=e=>{const b=e.target.closest("button"); if(!b)return; P.bn=+b.dataset.b; profileChanged(); paintMenu();};
 $("pStyle").onclick=e=>{const b=e.target.closest("button"); if(!b)return; P.ps=+b.dataset.p; applySkin(); profileChanged();};
 $("pNoPhoto").onclick=()=>{P.av.img=null; profileChanged();};
@@ -1894,7 +1917,7 @@ function start(data){
   if(!/^[A-Z0-9]{8}$/.test(P.id||"")){P.id=rid(); saveP();}
   F=lsGet(K_FR)||{}; D=lsGet(K_DAY)||{};
   for(const k in F)F[k]=Object.assign({name:"Amigo",bio:"",pp:0,placed:false},F[k],{av:cleanAv(F[k].av)});
-  xcInit(); applySkin(); netInit(); paintVer(); setTimeout(()=>checkUpdate(false),1500);
+  xcInit(); applySkin(); netInit(); paintVer(); cloudBoot(); setTimeout(()=>checkUpdate(false),1500);
   const sv=data&&data.G;
   if(validMatch(sv)&&data.screen==="game"){resetTurnState(); G=Object.assign({bot:-1,done:false,end:null,rv:null,an:null},sv); enterGame();}
   else go(data&&["bots","friends","profile","modes","history"].includes(data.screen)?data.screen:"menu");
@@ -1925,6 +1948,7 @@ const MEDALS=[
  {id:"pz1",n:"Primeiro puzzle",d:"Resolva um puzzle diário.",g:"r",t:0,ok:p=>p.stat.pz>=1},
  {id:"pz10",n:"Detetive",d:"Resolva 10 puzzles.",g:"r",t:1,ok:p=>p.stat.pz>=10},
  {id:"pz30",n:"Gênio tático",d:"Resolva 30 puzzles.",g:"r",t:2,ok:p=>p.stat.pz>=30},
+ {id:"cloud",n:"Conectado",d:"Conecte sua conta Google na versão web.",g:"k",t:1,ok:p=>!!p.linked},
  {id:"pzs7",n:"Sequência de 7",d:"Resolva o puzzle do dia por 7 dias seguidos.",g:"q",t:3,ok:p=>p.stat.pzBest>=7}
 ];
 const MEDAL_IDS=new Set(MEDALS.map(m=>m.id));
@@ -1936,7 +1960,7 @@ function xcInit(){
   for(const k of ["bb","vs","medals"])if(!P[k]||typeof P[k]!=="object"||Array.isArray(P[k]))P[k]={};
   if(!Array.isArray(P.ppH))P.ppH=[]; P.ppH=P.ppH.map(x=>x|0).filter(x=>x>=0).slice(-30);
   if(!P.pzd||typeof P.pzd!=='object')P.pzd={day:0,streak:0}; P.pzd.day=P.pzd.day|0; P.pzd.streak=P.pzd.streak|0;
-  P.bd=BOARDS[P.bd]?P.bd|0:0; P.sp=SPACKS[P.sp]?P.sp|0:0; xcApplyBoard();
+  P.linked=!!P.linked; P.bd=BOARDS[P.bd]?P.bd|0:0; if(BOARDS[P.bd].lock&&!P.linked)P.bd=0; if((P.av.fr|0)>=FRAMES.length||((P.av.fr|0)===FRAMES.length-1&&!P.linked))P.av.fr=0; P.sp=SPACKS[P.sp]?P.sp|0:0; xcApplyBoard();
   xcMedals(false);
 }
 function xcMedals(announce){
@@ -1975,7 +1999,7 @@ function xcPaintProfile(){
   const n=Object.keys(P.medals).filter(k=>MEDAL_IDS.has(k)).length;
   $("mdCount").textContent=n+"/"+MEDALS.length;
   $("pMedals").innerHTML=MEDALS.map(m=>medalHtml(m,!!P.medals[m.id])).join("");
-  xcPaintLook();
+  xcPaintLook(); paintCloud();
   $("pChart").innerHTML=chartHtml(P.ppH,"Conclua a classificação online e jogue mais partidas para ver o gráfico.");
 }
 $("pMedals").onclick=e=>{const b=e.target.closest("button"); if(!b)return; const m=MEDALS.find(x=>x.id===b.dataset.md); if(!m)return; const when=P.medals[m.id]; toast(m.n+": "+m.d+(when?" ✓ "+new Date(when).toLocaleDateString("pt-BR"):""));};
@@ -2027,7 +2051,8 @@ const BOARDS=[
  {n:"Mármore",d:"#8b8f99",l:"#ececf2"},
  {n:"Meia-noite",d:"#14163a",l:"#2c3070"},
  {n:"Sakura",d:"#d58aa8",l:"#ffe8f0"},
- {n:"Taiko",d:"#14141c",l:"#34344a"}
+ {n:"Taiko",d:"#14141c",l:"#34344a"},
+ {n:"Constelação",d:"#101a3d",l:"#233a7a",lock:1}
 ];
 function xcApplyBoard(){document.body.dataset.bd=BOARDS[P.bd]?P.bd:0;}
 /* ===== pacotes de som dos lances ===== */
@@ -2069,10 +2094,10 @@ function sfxMove(byMe,jd,next,mover){
   }
 }
 function xcPaintLook(){
-  $("pBoard").innerHTML=BOARDS.map((b,i)=>'<button data-bd="'+i+'" aria-pressed="'+(P.bd===i)+'"><i class="bdp" style="background:conic-gradient('+b.l+" 25%,"+b.d+" 0 50%,"+b.l+" 0 75%,"+b.d+' 0) 0 0/14px 14px"></i>'+b.n+"</button>").join("");
+  $("pBoard").innerHTML=BOARDS.map((b,i)=>'<button data-bd="'+i+'" aria-pressed="'+(P.bd===i)+'"><i class="bdp" style="background:conic-gradient('+b.l+" 25%,"+b.d+" 0 50%,"+b.l+" 0 75%,"+b.d+' 0) 0 0/14px 14px"></i>'+b.n+(b.lock&&!P.linked?" (Google)":"")+"</button>").join("");
   $("pSnd").innerHTML=SPACKS.map((n,i)=>'<button data-sp="'+i+'" aria-pressed="'+(P.sp===i)+'">'+n+"</button>").join("");
 }
-$("pBoard").onclick=e=>{const b=e.target.closest("button"); if(!b)return; P.bd=+b.dataset.bd; xcApplyBoard(); saveP(); xcPaintLook();};
+$("pBoard").onclick=e=>{const b=e.target.closest("button"); if(!b)return; if(BOARDS[+b.dataset.bd].lock&&!P.linked){toast("Conecte sua conta Google no perfil para liberar esse tabuleiro.");return;} P.bd=+b.dataset.bd; xcApplyBoard(); saveP(); xcPaintLook();};
 $("pSnd").onclick=e=>{
   const b=e.target.closest("button"); if(!b)return; P.sp=+b.dataset.sp; saveP(); xcPaintLook(); unlockAudio();
   sfxMove(true,JUDGE[0],{st:{w:{combo:4},b:{combo:0}},cap:false,chk:false,over:false},"w"); setTimeout(()=>sfxMove(false,JUDGE[1],{st:{w:{combo:0},b:{combo:1}},cap:true,chk:false,over:false},"b"),260);
@@ -2137,6 +2162,70 @@ function puzEnd(end){ /* chamado no lugar do fim de partida normal */
   saveP(); xcMedals(true);
   setTimeout(()=>{ if(!G||G!==z.g)return; ask("Puzzle resolvido!",z.daily?"Sequência: "+d.streak+(d.streak===1?" dia":" dias")+". Volte amanhã para o próximo.":"Boa! Mais um para a conta.","Voltar","Outro puzzle",()=>leaveNow(),()=>puzExtra()); },reduce?100:900);
 }
+
+
+/* ===== conta Google: salva o progresso na nuvem e libera brindes (só na versão web) ===== */
+const cloud={user:null,timer:0,applying:false,busy:false,msg:""};
+const CLOUD_KEYS=[K_PROF,K_FR,K_HIST,K_DAY];
+const fbOk=()=>IS_WEB&&!!window.XCFB;
+function xcDirty(k){ try{ if(!cloud.user||cloud.applying||!CLOUD_KEYS.includes(k))return; clearTimeout(cloud.timer); cloud.timer=setTimeout(()=>cloudPush().catch(()=>{}),6000); }catch(e){} }
+async function cloudPush(){
+  if(!cloud.user)return; cloud.busy=true; paintCloud();
+  try{
+    const at=Date.now(); P.syncAt=at; P.linked=true; lsSet(K_PROF,P);
+    await XCFB.set(cloud.user.uid,{p:JSON.stringify(P),f:JSON.stringify(F),h:JSON.stringify(lsGet(K_HIST)||[]),d:JSON.stringify(D),u:at,v:APPV});
+    cloud.msg="Salvo na nuvem às "+new Date(at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+  }catch(e){cloud.msg="Não deu para salvar agora. Tentaremos de novo.";}
+  cloud.busy=false; paintCloud();
+}
+function cloudApply(doc){
+  cloud.applying=true; clearTimeout(cloud.timer);
+  try{
+    const p=JSON.parse(doc.p); p.linked=true; p.syncAt=doc.u||Date.now();
+    lsSet(K_PROF,p); lsSet(K_FR,JSON.parse(doc.f||"{}")); lsSet(K_HIST,JSON.parse(doc.h||"[]")); lsSet(K_DAY,JSON.parse(doc.d||"{}"));
+    toast("Progresso da conta carregado."); setTimeout(()=>location.reload(),700);
+  }catch(e){cloud.applying=false; toast("Não deu para ler o progresso salvo.");}
+}
+const localHasData=()=>P.stat.games>0||Object.keys(P.medals).length>0||P.pp>0||Object.keys(F).length>0||!!P.av.img;
+async function cloudAfterLogin(fresh){
+  let doc=null;
+  try{doc=await XCFB.get(cloud.user.uid);}catch(e){toast("Conectado, mas sem acesso ao banco (confira as regras do Firestore)."); paintCloud(); return;}
+  const keepLocal=async()=>{const was=P.linked; await cloudPush(); if(!was){toast("Conta conectada! Brindes liberados."); xcInit(); xcMedals(true); paintProfile();}};
+  if(!doc){await keepLocal(); return;}
+  if(!fresh){ /* retorno de sessão: só puxa se outro aparelho salvou depois */
+    if((doc.u||0)>(P.syncAt||0))cloudApply(doc); else paintCloud();
+    return;
+  }
+  if(!localHasData())cloudApply(doc);
+  else ask("Essa conta já tem progresso salvo","Usar o progresso da nuvem (substitui o deste aparelho) ou manter o deste aparelho e enviá-lo para a conta?","Usar a nuvem","Manter este aparelho",()=>cloudApply(doc),()=>keepLocal());
+}
+async function cloudSignIn(){
+  cloud.busy=true; paintCloud();
+  try{
+    await XCFB.load(); const r=await XCFB.signIn();
+    cloud.user={uid:r.uid,name:r.name,email:r.email}; cloud.busy=false; paintCloud(); await cloudAfterLogin(true);
+  }catch(e){
+    cloud.busy=false; const c=(e&&e.code)||"";
+    toast(/popup-closed|cancelled/.test(c)?"Login cancelado.":/popup-blocked/.test(c)?"O navegador bloqueou a janela do Google. Permita pop-ups e tente de novo.":/unauthorized-domain/.test(c)?"Este endereço ainda não está autorizado no Firebase.":/operation-not-allowed/.test(c)?"O login com Google não está ativado no Firebase.":"Não deu para entrar agora.");
+    paintCloud();
+  }
+}
+async function cloudSignOut(){ try{await XCFB.signOut();}catch(e){} cloud.user=null; cloud.msg=""; P.linked=true; saveP(); paintCloud(); toast("Você saiu da conta. Os brindes continuam liberados."); }
+function paintCloud(){
+  const el=$("cloudBox"); if(!el)return;
+  if(!fbOk()){el.innerHTML="<b>Conta Google</b><p>Disponível na versão do site (iPhone e navegador). Entrando lá, você salva o progresso na nuvem e libera um tabuleiro, uma moldura e uma medalha exclusivos.</p>"; return;}
+  const ck=P.linked?"✓ ":"";
+  const gifts='<div class="gifts"><span class="gift">'+ck+"Tabuleiro Constelação</span><span class=\"gift\">"+ck+"Moldura Conectado</span><span class=\"gift\">"+ck+"Medalha Conectado</span></div>";
+  if(cloud.user)el.innerHTML="<b>Conectado</b><p>"+esc(cloud.user.email||cloud.user.name||"Conta Google")+"</p>"+gifts+"<small>"+esc(cloud.msg||"Seu progresso é salvo automaticamente.")+'</small><div class="pbtns"><button class="chip" id="cloudSync"'+(cloud.busy?" disabled":"")+'>Salvar agora</button><button class="chip" id="cloudOut">Sair da conta</button></div>';
+  else el.innerHTML="<b>Conta Google</b><p>Salve seu progresso na nuvem (troque de celular sem perder nada) e libere brindes exclusivos.</p>"+gifts+'<button class="btn main" id="cloudIn"'+(cloud.busy?" disabled":"")+">"+(cloud.busy?"Conectando…":"Entrar com Google")+"</button>";
+}
+$("cloudBox").onclick=e=>{const b=e.target.closest("button"); if(!b)return; if(b.id==="cloudIn")cloudSignIn(); else if(b.id==="cloudOut")cloudSignOut(); else if(b.id==="cloudSync")cloudPush();};
+/* ao abrir: se já entrou antes, a sessão volta sozinha */
+function cloudBoot(){
+  if(!fbOk()||!P.linked)return;
+  XCFB.load().then(()=>XCFB.onUser(u=>{ cloud.user=u?{uid:u.uid,name:u.name,email:u.email}:null; paintCloud(); if(u)cloudAfterLogin(false); })).catch(()=>{});
+}
+
 
 try{window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude.hot.snapshot(()=>({screen,G:G&&(G.kind==="bot"||G.kind==="local")&&!G.end?{kind:G.kind,mode:G.mode,bot:G.bot,my:G.my,spin:G.spin,tl:G.tl,clock:G.clock}:null}));}catch(e){}
 if(window.claude&&window.claude.hot&&window.claude.hot.ready)window.claude.hot.ready(start); else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{});

@@ -31,7 +31,7 @@ const SKINS=[
 ];
 /* formatos de peça (CSS em body[data-ps]) e extras de perfil */
 const PSTY=["Círculo","Hit circle","Slider","Anel","Minimal","Hexágono","Diamante","Pixel","Gel"];
-const FRAMES=["Nenhuma","Ouro","Ciano","Neon","Arco-íris","Pulso"];
+const FRAMES=["Nenhuma","Ouro","Ciano","Neon","Arco-íris","Pulso","Conectado"];
 const BANNERS=["linear-gradient(120deg,rgba(255,92,159,.28),rgba(98,224,255,.22))","linear-gradient(120deg,#ff6a3d,#7a4ad8)","linear-gradient(120deg,#12a64a,#0b6e86)","linear-gradient(120deg,#ffd36e,#ee6fa4)","linear-gradient(120deg,#2a1a6e,#0b110d)","linear-gradient(120deg,#3d56d6,#62e0ff)"];
 /* 15 IAs de treino: d = profundidade, noise = imprecisão, blun = chance de lance aleatório, w = gostos */
 const BOTS=[
@@ -68,7 +68,7 @@ const okImg=s=>typeof s==="string"&&s.length<40000&&/^data:image\/(jpeg|png);bas
 function cleanAv(a){a=a&&typeof a==="object"?a:{}; return {g:GL[a.g]?a.g:"k",c:(a.c|0)>=0&&(a.c|0)<AVC.length?a.c|0:0,img:okImg(a.img)?a.img:null,fr:(a.fr|0)>0&&(a.fr|0)<FRAMES.length?a.fr|0:0};}
 function avH(av,cls){av=cleanAv(av); return '<span class="av '+(av.fr?"fr"+av.fr+" ":"")+(cls||"")+'" style="'+(av.img?"background-image:url("+av.img+")":"background:"+AVC[av.c])+'">'+(av.img?"":GL[av.g]+VS)+"</span>";}
 function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||"null");}catch(e){return null;}}
-function lsSet(k,v){try{v===null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function lsSet(k,v){try{v===null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v));}catch(e){} if(typeof xcDirty==="function")xcDirty(k);}
 const saveP=()=>lsSet(K_PROF,P),saveF=()=>lsSet(K_FR,F),saveD=()=>lsSet(K_DAY,D);
 function saveMatch(){ if(!G||(G.kind!=="bot"&&G.kind!=="local"))return; lsSet(K_MATCH,G.end?null:{kind:G.kind,mode:G.mode,bot:G.bot,my:G.my,spin:G.spin,tl:G.tl,clock:G.clock}); }
 function validMatch(d){return d&&Array.isArray(d.tl)&&d.tl.length&&d.tl[0].s&&d.tl[0].ids&&MODES[d.mode]&&(d.kind==="local"||(d.kind==="bot"&&BOTS[d.bot]));}
@@ -209,7 +209,7 @@ $("pBio").onchange=()=>profileChanged();
 $("pGl").onclick=e=>{const b=e.target.closest("button"); if(!b)return; P.av.g=b.dataset.g; P.av.img=null; profileChanged();};
 $("pCol").onclick=e=>{const b=e.target.closest("button"); if(!b)return; P.av.c=+b.dataset.c; profileChanged();};
 $("pSkin").onclick=e=>{const b=e.target.closest("button"); if(!b)return; P.skin=+b.dataset.s; applySkin(); profileChanged();};
-$("pFrame").onclick=e=>{const b=e.target.closest("button"); if(!b)return; P.av.fr=+b.dataset.f; profileChanged();};
+$("pFrame").onclick=e=>{const b=e.target.closest("button"); if(!b)return; if(+b.dataset.f===FRAMES.length-1&&!P.linked){toast("Conecte sua conta Google no perfil para liberar essa moldura.");return;} P.av.fr=+b.dataset.f; profileChanged();};
 $("pBanner").onclick=e=>{const b=e.target.closest("button"); if(!b)return; P.bn=+b.dataset.b; profileChanged(); paintMenu();};
 $("pStyle").onclick=e=>{const b=e.target.closest("button"); if(!b)return; P.ps=+b.dataset.p; applySkin(); profileChanged();};
 $("pNoPhoto").onclick=()=>{P.av.img=null; profileChanged();};
@@ -1106,7 +1106,7 @@ function start(data){
   if(!/^[A-Z0-9]{8}$/.test(P.id||"")){P.id=rid(); saveP();}
   F=lsGet(K_FR)||{}; D=lsGet(K_DAY)||{};
   for(const k in F)F[k]=Object.assign({name:"Amigo",bio:"",pp:0,placed:false},F[k],{av:cleanAv(F[k].av)});
-  xcInit(); applySkin(); netInit(); paintVer(); setTimeout(()=>checkUpdate(false),1500);
+  xcInit(); applySkin(); netInit(); paintVer(); cloudBoot(); setTimeout(()=>checkUpdate(false),1500);
   const sv=data&&data.G;
   if(validMatch(sv)&&data.screen==="game"){resetTurnState(); G=Object.assign({bot:-1,done:false,end:null,rv:null,an:null},sv); enterGame();}
   else go(data&&["bots","friends","profile","modes","history"].includes(data.screen)?data.screen:"menu");

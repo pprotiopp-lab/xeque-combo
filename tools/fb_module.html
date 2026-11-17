@@ -1,0 +1,12 @@
+<script type="module">
+const CFG={apiKey:"AIzaSyCFEvnJqu4RST2YhSUDHOImE9oPwQuHBhE",authDomain:"xadrez-fe040.firebaseapp.com",projectId:"xadrez-fe040",storageBucket:"xadrez-fe040.firebasestorage.app",messagingSenderId:"975600876305",appId:"1:975600876305:web:b5b12a35fe269318ceeab0"};
+const V="10.14.1",U="https://www.gstatic.com/firebasejs/"+V+"/";let M=null;
+window.XCFB={
+  async load(){ if(M)return M; const [a,au,fs]=await Promise.all([import(U+"firebase-app.js"),import(U+"firebase-auth.js"),import(U+"firebase-firestore.js")]); const app=a.initializeApp(CFG); M={au,fs,auth:au.getAuth(app),db:fs.getFirestore(app)}; return M; },
+  async signIn(){ const m=await this.load(); const r=await m.au.signInWithPopup(m.auth,new m.au.GoogleAuthProvider()); return {uid:r.user.uid,name:r.user.displayName,email:r.user.email}; },
+  async signOut(){ const m=await this.load(); await m.au.signOut(m.auth); },
+  onUser(cb){ return M.au.onAuthStateChanged(M.auth,u=>cb(u?{uid:u.uid,name:u.displayName,email:u.email}:null)); },
+  async get(uid){ const m=await this.load(); const s=await m.fs.getDoc(m.fs.doc(m.db,"users",uid)); return s.exists()?s.data():null; },
+  async set(uid,o){ const m=await this.load(); await m.fs.setDoc(m.fs.doc(m.db,"users",uid),o); }
+};
+</script>
