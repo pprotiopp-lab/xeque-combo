@@ -1868,7 +1868,9 @@ const APPV="3.4", UPD_REPO="pprotiopp-lab/xeque-combo";
 const verNum=v=>String(v||"").replace(/^[^0-9]*/,"").split(".").map(n=>parseInt(n,10)||0);
 const verNewer=(a,b)=>{const x=verNum(a),y=verNum(b);for(let i=0;i<Math.max(x.length,y.length);i++){const p=x[i]||0,q=y[i]||0;if(p!==q)return p>q;}return false;};
 let updUrl="";
+const IS_WEB=/^https?:$/.test(location.protocol); /* versão de navegador: a página se atualiza sozinha */
 function checkUpdate(manual){
+  if(IS_WEB){if(manual){toast("Atualizando…"); setTimeout(()=>location.reload(),300);} return;}
   const btn=$("verBtn"); if(manual&&btn)btn.textContent="Verificando…";
   let done=false; const to=setTimeout(()=>{if(!done&&manual){toast("Sem resposta do GitHub agora.");paintVer();}},8000);
   try{
@@ -1888,7 +1890,7 @@ function checkUpdate(manual){
     .catch(()=>{done=true; clearTimeout(to); paintVer(); if(manual)toast("Não deu para verificar agora (repositório privado ou sem internet).");});
   }catch(e){done=true; clearTimeout(to); paintVer();}
 }
-function paintVer(){const b=$("verBtn"); if(b)b.textContent="v"+APPV+" · atualizar";}
+function paintVer(){const b=$("verBtn"); if(b)b.textContent="v"+APPV+(IS_WEB?" · recarregar":" · atualizar");}
 $("updBtn").onclick=()=>{if(updUrl)location.href=updUrl;};
 $("verBtn").onclick=()=>checkUpdate(true);
 function start(data){
