@@ -34,6 +34,7 @@ function xcInit(){
   for(const k in P.stat)P.stat[k]=Math.max(0,+P.stat[k]||0);
   for(const k of ["bb","vs","medals"])if(!P[k]||typeof P[k]!=="object"||Array.isArray(P[k]))P[k]={};
   if(!Array.isArray(P.ppH))P.ppH=[]; P.ppH=P.ppH.map(x=>x|0).filter(x=>x>=0).slice(-30);
+  if(!P.pzd||typeof P.pzd!=='object')P.pzd={day:0,streak:0}; P.pzd.day=P.pzd.day|0; P.pzd.streak=P.pzd.streak|0;
   P.bd=BOARDS[P.bd]?P.bd|0:0; P.sp=SPACKS[P.sp]?P.sp|0:0; xcApplyBoard();
   xcMedals(false);
 }
@@ -175,3 +176,63 @@ $("pSnd").onclick=e=>{
   const b=e.target.closest("button"); if(!b)return; P.sp=+b.dataset.sp; saveP(); xcPaintLook(); unlockAudio();
   sfxMove(true,JUDGE[0],{st:{w:{combo:4},b:{combo:0}},cap:false,chk:false,over:false},"w"); setTimeout(()=>sfxMove(false,JUDGE[1],{st:{w:{combo:0},b:{combo:1}},cap:true,chk:false,over:false},"b"),260);
 };
+
+/* ===== puzzles: mate em 1 e mate em 2 (o do dia é igual para todo mundo) ===== */
+const PUZZLES=/*@PUZ@*/[];
+const dayNum=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/DAY);
+const mates1=s=>legal(s).filter(m=>{const ns=make(s,m);return legal(ns).length===0&&inCheck(ns,ns.turn==="w");});
+const winsIn2=ns=>{const rs=legal(ns);return rs.length>0&&rs.every(r=>mates1(make(ns,r)).length>0);};
+function puzPly(pz){
+  const b=[...pz.b].map(c=>c==="."?null:c),ids=new Array(64).fill(0); let n=1; b.forEach((c,i)=>{if(c)ids[i]=n++;});
+  return {s:{b,turn:pz.t,cast:{K:0,Q:0,k:0,q:0},ep:-1,half:0},ids,st:{w:newStats(),b:newStats()},last:null};
+}
+const puzToday=()=>PUZZLES.length?dayNum()%PUZZLES.length:-1;
+function puzStreak(){const d=P.pzd; return d.day>=dayNum()-1?d.streak:0;}
+function xcPaintMenu(){
+  if(!PUZZLES.length){$("mPuz").hidden=true;return;}
+  const solved=P.pzd.day===dayNum(),st=puzStreak();
+  $("mPuzTxt").textContent=solved?"Resolvido hoje · sequência de "+st+(st===1?" dia":" dias"):(st?"Mate em "+PUZZLES[puzToday()].n+" · mantenha a sequência de "+st:"Mate em "+PUZZLES[puzToday()].n+" · muda todo dia");
+}
+function startPuzzle(idx,daily){
+  const pz=PUZZLES[idx]; if(!pz)return;
+  startMatch({kind:"puzzle",mode:"classic",my:pz.t,tl:[puzPly(pz)],names:{w:pz.t==="w"?"Você":"Rival",b:pz.t==="b"?"Você":"Rival"}});
+  G.puzzle={n:pz.n,idx,daily:!!daily,tries:0,g:G}; hud();
+}
+function puzExtra(){const t=puzToday(); let i; do{i=Math.random()*PUZZLES.length|0;}while(PUZZLES.length>1&&i===t); startPuzzle(i,false);}
+$("mPuz").onclick=()=>{
+  unlockAudio(); tone(660,.08,"triangle",.12);
+  if(P.pzd.day!==dayNum())startPuzzle(puzToday(),true);
+  else ask("Puzzle de hoje já resolvido","Quer treinar com outro puzzle? Não muda a sua sequência.","Outro puzzle","Voltar",()=>puzExtra());
+};
+function xcPuzHud(){
+  const z=G.puzzle; if(!z)return;
+  $("gTitle").textContent=z.daily?"Puzzle do dia":"Puzzle"; $("gTag").textContent="Mate em "+z.n; $("gTag").className="tag cool";
+  $("resignBtn").hidden=true; $("undoBtn").hidden=true;
+  $("gHint").textContent="Dê xeque-mate em "+z.n+(z.n>1?" lances":" lance")+". Você joga com as "+(G.my==="w"?"brancas":"pretas")+". Não vale PP.";
+}
+/* depois do meu lance: era o certo? */
+function puzAfter(){
+  if(!G||!G.puzzle||G.end)return; const s=cur().s; if(s.turn===G.my)return;
+  const made=Math.ceil((G.tl.length-1)/2),len=G.tl.length,z=G.puzzle;
+  if(made<z.n&&winsIn2(s)){
+    busy=true; setStatus();
+    setTimeout(()=>{
+      if(!G||G!==z.g||G.end||G.tl.length!==len)return; busy=false;
+      const rs=legal(cur().s); play(rs[Math.random()*rs.length|0],false);
+    },reduce?100:650);
+  }else puzWrong(len);
+}
+function puzWrong(len){
+  const z=G.puzzle; z.tries++; z.g=G; busy=true; toast("Não era esse. Tente de novo."); tone(180,.2,"sawtooth",.1);
+  setTimeout(()=>{ if(!G||G.end||G.tl.length!==len)return; G.tl.pop(); G.an=null; busy=false; sel=-1; targets=[]; render(false); },reduce?100:800);
+}
+function puzEnd(end){ /* chamado no lugar do fim de partida normal */
+  const z=G.puzzle; z.g=G;
+  if(!(end.type==="mate"&&end.winner===G.my)){ G.end=null; puzWrong(G.tl.length); return; }
+  G.end=end; busy=false; sel=-1; targets=[]; $("promo").hidden=true; render(false); fanfare(1);
+  const d=P.pzd,today=dayNum();
+  P.stat.pz++;
+  if(z.daily&&d.day!==today){d.streak=d.day===today-1?d.streak+1:1; d.day=today; P.stat.pzBest=Math.max(P.stat.pzBest,d.streak);}
+  saveP(); xcMedals(true);
+  setTimeout(()=>{ if(!G||G!==z.g)return; ask("Puzzle resolvido!",z.daily?"Sequência: "+d.streak+(d.streak===1?" dia":" dias")+". Volte amanhã para o próximo.":"Boa! Mais um para a conta.","Voltar","Outro puzzle",()=>leaveNow(),()=>puzExtra()); },reduce?100:900);
+}

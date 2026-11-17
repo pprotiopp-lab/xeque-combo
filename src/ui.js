@@ -146,7 +146,7 @@ function go(name){
 function modeForPlay(){return P.mode==="daily"?"classic":P.mode;}
 function paintModeChips(){for(const el of document.querySelectorAll(".modeName"))el.textContent=MODES[modeForPlay()].n;}
 function paintMenu(){
-  $("meCard").style.background=BANNERS[P.bn]||BANNERS[0]; $("meAv").innerHTML=avH(P.av); $("meName").textContent=P.name; $("meSub").textContent=P.bio||"Toque para personalizar seu perfil";
+  xcPaintMenu(); $("meCard").style.background=BANNERS[P.bn]||BANNERS[0]; $("meAv").innerHTML=avH(P.av); $("meName").textContent=P.name; $("meSub").textContent=P.bio||"Toque para personalizar seu perfil";
   $("mePP").textContent=P.placed?P.pp.toLocaleString("pt-BR")+" PP":"Sem PP";
   $("meRec").textContent=P.placed?P.on.w+"V "+P.on.d+"E "+P.on.l+"D":"Classificação "+P.perfs.length+"/5";
   const sv=lsGet(K_MATCH),ok=validMatch(sv);
@@ -396,6 +396,7 @@ function play(m,byMe,k){
 function resultFor(){ const e=G.end; if(!e||!e.winner)return .5; return G.kind==="local"?1:(e.winner===G.my?1:0); }
 function endGame(end){
   if(!G||G.end)return;
+  if(G.kind==="puzzle"){puzEnd(end);return;}
   G.end=end; aiToken++; rateToken++; busy=false; sel=-1; targets=[]; $("promo").hidden=true; stopMusic();
   if(net.drawIn){net.drawIn=false; $("ask").hidden=true;}
   const r=resultFor(); settle(r); xcAfterGame(r);
@@ -422,6 +423,7 @@ function settle(r){
 }
 function afterMove(){
   if(!G||G.end)return; const s=cur().s;
+  if(G.kind==="puzzle"){puzAfter();return;}
   if(G.mode==="osu"&&mine(s.turn))G.dead=nextBeat(performance.now())+TURN_BEATS*BEAT;
   if(G.kind==="bot"&&s.turn!==G.my){
     busy=true; setStatus();
@@ -543,6 +545,7 @@ function hud(){
     :G.kind==="online"?"Vale PP: resultado e precisão contam. Sair no meio é derrota. "
     :G.kind==="daily"?"Partida diária: até 1 dia por lance. O lance é entregue quando vocês dois estiverem com o app aberto. "
     :G.kind==="bot"?"Treino: não muda seu PP. ":"Cada jogador ganha nota pelos seus lances. ")+"Toque ou arraste as peças. Roque: mova o rei duas casas para o lado.";
+  if(G.kind==="puzzle")xcPuzHud();
 }
 function paintSides(){
   const p=view(),bottom=boardEl.classList.contains("flip")?"b":"w";
@@ -1068,7 +1071,7 @@ function dailyRecv(fid,g){
 
 /* ---- início ---- */
 /* ---- atualização via GitHub Releases ---- */
-const APPV="3.3", UPD_REPO="pprotiopp-lab/xeque-combo";
+const APPV="3.4", UPD_REPO="pprotiopp-lab/xeque-combo";
 const verNum=v=>String(v||"").replace(/^[^0-9]*/,"").split(".").map(n=>parseInt(n,10)||0);
 const verNewer=(a,b)=>{const x=verNum(a),y=verNum(b);for(let i=0;i<Math.max(x.length,y.length);i++){const p=x[i]||0,q=y[i]||0;if(p!==q)return p>q;}return false;};
 let updUrl="";
