@@ -196,6 +196,7 @@ function paintProfile(){
   $("pFrame").innerHTML=FRAMES.map((n,i)=>'<button data-f="'+i+'" aria-pressed="'+((P.av.fr|0)===i)+'" aria-label="Moldura '+n+'"><span class="av fr'+i+'" style="width:30px;height:30px;border-width:2px;background:'+AVC[P.av.c]+'"></span></button>').join("");
   $("pBanner").innerHTML=BANNERS.map((g,i)=>'<button data-b="'+i+'" aria-pressed="'+(P.bn===i)+'" style="background:'+g+'" aria-label="Fundo '+(i+1)+'"></button>').join("");
   $("pStyle").innerHTML=PSTY.map((n,i)=>'<button data-p="'+i+'" aria-pressed="'+(P.ps===i)+'"><span class="pvw"><span class="pv" data-ps="'+i+'"><span class="pc"><span>'+GL.k+VS+'</span></span><span class="pc b"><span>'+GL.q+VS+"</span></span></span></span>"+n+"</button>").join("");
+  xcPaintProfile();
   const acc=P.accN?Math.round(P.accSum/P.accN*100)+"%":"—";
   const rows=[["PP",P.placed?P.pp:"—"],["Classificação",P.placed?"Concluída":P.perfs.length+"/5"],["Partidas online",P.on.g],["Vitórias",P.on.w],["Empates",P.on.d],["Derrotas",P.on.l],["Precisão média",acc],["Maior combo",P.maxCombo+"x"]];
   $("pStats").innerHTML=rows.map(r=>"<div><span>"+r[0]+"</span><b>"+r[1]+"</b></div>").join("");
@@ -387,14 +388,7 @@ function play(m,byMe,k){
   render(false);
   burst(m.t,next.cap?"var(--ouro)":(w?"var(--p1b)":"var(--p2r)"),next.cap?12:6);
   if(jd){floatText(m.t,jd.t,jd.c); const cb=$("combo"); cb.classList.remove("pop"); void cb.offsetWidth; cb.classList.add("pop");}
-  if(jd===JUDGE[3])tone(150,.22,"sawtooth",.12);
-  else{
-    const n=byMe?Math.max(Math.min(next.st[mover].combo,SCALE.length)-1,0):2;
-    tone(byMe?SCALE[n]:330,.14,"triangle",.2);
-    if(jd===JUDGE[0])tone(SCALE[n]*1.5,.18,"sine",.1,.05);
-  }
-  if(next.cap)tone(110,.2,"square",.1);
-  if(next.chk&&!next.over){tone(880,.1,"square",.07,.12);tone(660,.14,"square",.07,.22);}
+  sfxMove(byMe,jd,next,mover);
   if(next.over)endGame({type:next.over,winner:next.over==="mate"?mover:null});
   else{saveMatch(); afterMove();}
 }
@@ -404,7 +398,7 @@ function endGame(end){
   if(!G||G.end)return;
   G.end=end; aiToken++; rateToken++; busy=false; sel=-1; targets=[]; $("promo").hidden=true; stopMusic();
   if(net.drawIn){net.drawIn=false; $("ask").hidden=true;}
-  const r=resultFor(); settle(r);
+  const r=resultFor(); settle(r); xcAfterGame(r);
   if(G.kind==="daily")dailyFinish();
   saveHist();
   saveMatch(); fanfare(r); render(false);
@@ -868,7 +862,7 @@ const netOk=()=>typeof Peer!=="undefined"&&(typeof RTCPeerConnection!=="undefine
 const isOn=fid=>!!(net.links[fid]&&net.links[fid].open);
 function sendTo(c,o){try{c&&c.open&&c.send(o);}catch(e){}}
 const sendF=(fid,o)=>sendTo(net.links[fid],o);
-const helloMsg=()=>({t:"hello",id:P.id,name:P.name,bio:P.bio,av:P.av,pp:P.pp,placed:P.placed});
+const helloMsg=()=>Object.assign({t:"hello",id:P.id,name:P.name,bio:P.bio,av:P.av,pp:P.pp,placed:P.placed},xcHello());
 function broadcastHello(){for(const fid in net.links)sendF(fid,helloMsg());}
 function netMsg(){
   const el=$("netMsg"); let t,bad=false;
@@ -918,6 +912,7 @@ function onMsg(c,d){
     if(typeof d.id!=="string"||!/^[A-Z0-9]{8}$/.test(d.id)||d.id===P.id)return;
     const isNew=!F[d.id]; c.fid=d.id; net.links[d.id]=c;
     F[d.id]={name:String(d.name||"Amigo").slice(0,16),bio:String(d.bio||"").slice(0,48),av:cleanAv(d.av),pp:Math.max(0,d.pp|0),placed:!!d.placed};
+    xcStoreFriend(F[d.id],d);
     saveF(); if(isNew)toast(F[d.id].name+" agora é seu amigo.");
     if(D[d.id])sendTo(c,{t:"dsync",g:D[d.id]});
     if(screen==="friends")paintFriends(); if(G&&screen==="game"&&G.fid===d.id){hud();paintSides();}
@@ -1012,6 +1007,7 @@ $("fRows").onclick=e=>{
   const r=e.target.closest("button.row"); if(!r)return; unlockAudio(); fsId=r.dataset.f; const f=F[fsId]; if(!f)return;
   $("fsAv").innerHTML=avH(f.av,"big"); $("fsTitle").textContent=f.name; $("fsSub").textContent=(f.bio?f.bio+" · ":"")+ppTxt(f)+" · "+(isOn(fsId)?"online":"offline");
   $("fsPlay").textContent=isOn(fsId)?"Desafiar · "+MODES[modeForPlay()].n:"Offline agora"; $("fsPlay").disabled=!isOn(fsId);
+  xcPaintFriend(fsId);
   const d=D[fsId]; $("fsDaily").textContent=d&&!d.over?"Abrir partida diária":d?"Ver diária e começar outra":"Começar partida diária";
   $("fsheet").hidden=false;
 };
@@ -1105,11 +1101,12 @@ function start(data){
   if(!/^[A-Z0-9]{8}$/.test(P.id||"")){P.id=rid(); saveP();}
   F=lsGet(K_FR)||{}; D=lsGet(K_DAY)||{};
   for(const k in F)F[k]=Object.assign({name:"Amigo",bio:"",pp:0,placed:false},F[k],{av:cleanAv(F[k].av)});
-  applySkin(); netInit(); paintVer(); setTimeout(()=>checkUpdate(false),1500);
+  xcInit(); applySkin(); netInit(); paintVer(); setTimeout(()=>checkUpdate(false),1500);
   const sv=data&&data.G;
   if(validMatch(sv)&&data.screen==="game"){resetTurnState(); G=Object.assign({bot:-1,done:false,end:null,rv:null,an:null},sv); enterGame();}
   else go(data&&["bots","friends","profile","modes","history"].includes(data.screen)?data.screen:"menu");
 }
+/*@EXTRAS@*/
 try{window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude.hot.snapshot(()=>({screen,G:G&&(G.kind==="bot"||G.kind==="local")&&!G.end?{kind:G.kind,mode:G.mode,bot:G.bot,my:G.my,spin:G.spin,tl:G.tl,clock:G.clock}:null}));}catch(e){}
 if(window.claude&&window.claude.hot&&window.claude.hot.ready)window.claude.hot.ready(start); else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{});
 

@@ -133,3 +133,41 @@ body:not([data-ps="0"]) .pc.sel,body:not([data-ps="0"]) .pc.drag{filter:drop-sha
 [data-ps="7"] .pc>span{border-radius:8%;border-width:.9cqw;box-shadow:.9cqw .9cqw 0 rgba(0,0,0,.55)}
 [data-ps="8"] .pc>span{background:radial-gradient(circle at 32% 24%,rgba(255,255,255,.75),rgba(255,255,255,0) 38%),linear-gradient(160deg,var(--p1a),var(--p1b));border-width:.5cqw}
 [data-ps="8"] .pc.b>span{background:radial-gradient(circle at 32% 24%,rgba(255,255,255,.55),rgba(255,255,255,0) 38%),linear-gradient(160deg,var(--p2a),var(--p2b))}
+
+/* ===== v3.4: medalhas, gráfico, adversários ===== */
+.card{max-height:92vh;overflow-y:auto}
+.medals{display:flex;flex-wrap:wrap;gap:8px}
+.medals.sm{justify-content:center;gap:6px}
+.medal{width:50px;height:50px;border-radius:50%;border:4px solid var(--mc);background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.25),rgba(255,255,255,0) 45%),#2b1d52;display:grid;place-items:center;font-family:var(--glyph);font-size:24px;color:var(--mc);box-shadow:0 0 12px color-mix(in srgb,var(--mc) 45%,transparent)}
+.medal.sm{width:36px;height:36px;font-size:17px;border-width:3px}
+.medal.lock{border-color:rgba(255,255,255,.18);color:rgba(255,255,255,.35);box-shadow:none;background:rgba(255,255,255,.05);font-family:var(--body);font-weight:700}
+.chart{width:100%;height:auto;display:block;background:rgba(255,255,255,.05);border-radius:12px}
+.chart .line{fill:none;stroke:var(--ciano);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.chart .fill{fill:rgba(98,224,255,.12);stroke:none}
+.chart .dot{fill:var(--ouro);stroke:#fff;stroke-width:2}
+.chartlb{display:flex;justify-content:space-between;font-size:12px;color:var(--nevoa);margin-top:4px;font-variant-numeric:tabular-nums}
+.up{color:var(--ok)}.down{color:#ff7a9a}
+.statgrid.sm div{padding:6px 10px}.statgrid.sm b{font-size:17px}
+.h2h{font-size:13px;color:var(--nevoa)}
+#fsExtra{display:flex;flex-direction:column;gap:10px;text-align:left}
+#fsExtra .lbl{margin-bottom:-4px}
+.vsrec{white-space:nowrap;font-size:14px}.vsrec b{font-family:var(--display);font-style:italic}
+.pbtns .chip[aria-pressed="true"]{background:var(--rosa);color:#2a0a1b}
+
+/* ===== v3.4: fundo do tabuleiro ===== */
+.bdp{width:28px;height:28px;border-radius:6px;display:inline-block;border:2px solid #fff}
+body[data-bd="1"]{--stage:#9a6a3a;--stage-hi:#ecd2a4}
+body[data-bd="1"] .board-wrap{background:linear-gradient(135deg,#6b4423,#d9a15a 55%,#6b4423)}
+body[data-bd="2"]{--stage:#5b8a4a;--stage-hi:#eeeed2}
+body[data-bd="2"] .board-wrap{background:linear-gradient(135deg,#34552c,#8fb870 55%,#34552c)}
+body[data-bd="3"]{--stage:#6f93b8;--stage-hi:#e6f3ff}
+body[data-bd="3"] .board-wrap{background:linear-gradient(135deg,#7cc4ff,#ffffff 55%,#7cc4ff)}
+body[data-bd="4"]{--stage:#8b8f99;--stage-hi:#ececf2}
+body[data-bd="4"] .board-wrap{background:linear-gradient(135deg,#3c3f48,#c8cad4 55%,#3c3f48)}
+body[data-bd="5"]{--stage:#14163a;--stage-hi:#2c3070}
+body[data-bd="5"] .board-wrap{background:linear-gradient(135deg,#7a4ad8,#62e0ff 55%,#7a4ad8)}
+body[data-bd="6"]{--stage:#d58aa8;--stage-hi:#ffe8f0}
+body[data-bd="6"] .board-wrap{background:linear-gradient(135deg,#ff9fc3,#ffffff 55%,#ff9fc3)}
+body[data-bd="7"]{--stage:#14141c;--stage-hi:#34344a}
+body[data-bd="7"] .board-wrap{background:linear-gradient(135deg,#ff3d8b,#62e0ff 55%,#ff3d8b)}
+body[data-bd="1"] .sq i,body[data-bd="2"] .sq i,body[data-bd="3"] .sq i,body[data-bd="4"] .sq i,body[data-bd="6"] .sq i{color:rgba(30,20,50,.55)}

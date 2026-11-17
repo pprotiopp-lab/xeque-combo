@@ -34,7 +34,12 @@
 <!-- ===== HISTÓRICO ===== -->
 <main class="screen" id="history">
   <div class="bar"><button class="back" data-back>&#8249; Menu</button><h2>Histórico</h2></div>
+  <div class="pbtns"><button class="chip" id="hTabG" aria-pressed="true">Partidas</button><button class="chip" id="hTabV" aria-pressed="false">Adversários</button></div>
   <div class="rows" id="hRows"></div>
+  <div id="vWrap" hidden>
+    <div class="pbtns" id="vFilter"><button class="chip" data-vf="all" aria-pressed="true">Todos</button><button class="chip" data-vf="lost" aria-pressed="false">Quem me venceu</button><button class="chip" data-vf="won" aria-pressed="false">Quem eu venci</button></div>
+    <div class="rows" id="vRows"></div>
+  </div>
 </main>
 
 <!-- ===== TREINO ===== -->
@@ -86,6 +91,12 @@
   <div class="field"><span class="lbl">Fundo do seu cartão</span><div class="sw" id="pBanner"></div></div>
   <div class="field"><span class="lbl">Cores das peças</span><div class="sw skins" id="pSkin"></div></div>
   <div class="field"><span class="lbl">Formato das peças</span><div class="sw skins pstyles" id="pStyle"></div></div>
+  <div class="field"><span class="lbl">Fundo do tabuleiro</span><div class="sw skins" id="pBoard"></div></div>
+  <div class="field"><span class="lbl">Som dos lances (toque para ouvir)</span><div class="sw skins" id="pSnd"></div></div>
+  <span class="lbl">Medalhas <b id="mdCount"></b></span>
+  <div class="medals" id="pMedals"></div>
+  <span class="lbl">Seu PP nas últimas partidas</span>
+  <div id="pChart"></div>
   <span class="lbl">Suas estatísticas online</span>
   <div class="statgrid" id="pStats"></div>
 </main>
@@ -166,6 +177,7 @@
     <span id="fsAv" style="align-self:center"></span>
     <h2 id="fsTitle"></h2>
     <p id="fsSub"></p>
+    <div id="fsExtra"></div>
     <button class="btn main" id="fsPlay"></button>
     <button class="btn" id="fsDaily"></button>
     <button class="btn" id="fsChat">Conversar</button>
