@@ -12,6 +12,7 @@
     <span class="who"><b id="meName"></b><small id="meSub"></small></span>
     <span class="ppb"><strong id="mePP"></strong><small id="meRec"></small></span>
   </button>
+  <button class="mbtn main upd" id="updBtn" hidden><span class="ic">&#10227;</span><span><b id="updT">Nova versão</b><small>Toque para baixar e instalar por cima</small></span></button>
   <div class="menu-list">
     <button class="mbtn main" id="mResume" hidden><span class="ic">&#9819;&#xFE0E;</span><span><b>Continuar partida</b><small id="mResumeTxt"></small></span></button>
     <button class="mbtn main" id="mOnline"><span class="ic">&#9822;&#xFE0E;</span><span><b>Online e amigos</b><small>Vale PP. Adicione amigos e desafie</small></span></button>
@@ -20,7 +21,7 @@
     <button class="mbtn" id="mHist"><span class="ic">&#9819;&#xFE0E;</span><span><b>Histórico</b><small>Reveja e analise suas últimas partidas</small></span></button>
     <button class="mbtn" id="mModes"><span class="ic">&#9821;&#xFE0E;</span><span><b>Modos</b><small id="mModeTxt"></small></span></button>
   </div>
-  <div class="foot"><button class="chip snd" aria-pressed="true">Som</button></div>
+  <div class="foot"><button class="chip snd" aria-pressed="true">Som</button><button class="chip" id="verBtn"></button></div>
 </main>
 
 <!-- ===== MODOS ===== -->
@@ -72,6 +73,7 @@
     <span id="pAv"></span>
     <div class="pbtns">
       <label class="chip" for="fileIn" id="pPhoto">Trocar foto</label>
+      <button class="chip" id="pAdj" hidden>Ajustar foto</button>
       <button class="chip" id="pNoPhoto">Usar avatar</button>
     </div>
     <input type="file" id="fileIn" accept="image/*">
@@ -80,7 +82,10 @@
   <div class="field"><label class="lbl" for="pBio">Frase do perfil</label><input class="inp" id="pBio" maxlength="48" autocomplete="off" placeholder="Ex.: só jogo gambito"></div>
   <div class="field"><span class="lbl">Avatar</span><div class="sw" id="pGl"></div></div>
   <div class="field"><span class="lbl">Cor do avatar</span><div class="sw" id="pCol"></div></div>
-  <div class="field"><span class="lbl">Visual das peças</span><div class="sw skins" id="pSkin"></div></div>
+  <div class="field"><span class="lbl">Moldura do avatar</span><div class="sw" id="pFrame"></div></div>
+  <div class="field"><span class="lbl">Fundo do seu cartão</span><div class="sw" id="pBanner"></div></div>
+  <div class="field"><span class="lbl">Cores das peças</span><div class="sw skins" id="pSkin"></div></div>
+  <div class="field"><span class="lbl">Formato das peças</span><div class="sw skins pstyles" id="pStyle"></div></div>
   <span class="lbl">Suas estatísticas online</span>
   <div class="statgrid" id="pStats"></div>
 </main>
@@ -177,13 +182,15 @@
     <button class="btn" id="chatClose">Fechar</button>
   </div>
 </div>
-<div class="sheet" id="upd" hidden>
-  <div class="card" role="dialog" aria-labelledby="updTitle">
-    <h2 id="updTitle"></h2>
-    <p id="updSub"></p>
-    <p id="updNotes" hidden style="white-space:pre-wrap;opacity:.8;font-size:.9em"></p>
-    <button class="btn main" id="updGo">Atualizar</button>
-    <button class="btn" id="updLater">Depois</button>
+<div class="sheet" id="crop" hidden>
+  <div class="card" role="dialog" aria-labelledby="cropT">
+    <h2 id="cropT">Ajustar foto</h2>
+    <div id="cropBox"><canvas id="cropCv" width="360" height="360"></canvas><i class="cmask"></i></div>
+    <div class="zoomrow"><span>&#8722;</span><input type="range" id="cropZoom" min="100" max="400" value="100" aria-label="Zoom"><span>+</span></div>
+    <div class="pbtns"><button class="chip" id="cropRot">Girar &#10227;</button><button class="chip" id="cropFlip">Espelhar</button><button class="chip" id="cropReset">Centralizar</button></div>
+    <p class="hint">Arraste a foto para mover. Use dois dedos ou o zoom para aproximar.</p>
+    <button class="btn main" id="cropOk">Usar foto</button>
+    <button class="btn" id="cropNo">Cancelar</button>
   </div>
 </div>
 <div id="toast" hidden role="status"></div>
