@@ -26,3 +26,5 @@ Para lançar uma versão nova:
 3. `gh release create v3.3 dist/xeque-combo-3.3.apk --title "Xeque Combo 3.3" --notes "o que mudou"` (as notas aparecem no aviso).
 
 > O aviso só existe a partir da v3.2: quem está na 3.1 precisa instalar a 3.2 manualmente uma vez.
+
+> **Nota:** o `dist/xeque-combo-3.2.apk` foi montado fora deste repositório e traz o aviso de atualização com implementação própria (`checkUpdate`, botão de versão, classe `Nav`). O aviso em `src/ui.js` e `Client.smali` é uma versão alternativa e não bate com esse APK. Ao mexer no código, parta do `assets/index.html` desse APK ou reconcilie as duas.
