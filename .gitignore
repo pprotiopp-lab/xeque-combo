@@ -6,3 +6,4 @@ android/tools/
 android/out*/
 android/proj/build/
 android/proj/assets/index.html
+*.idsig
