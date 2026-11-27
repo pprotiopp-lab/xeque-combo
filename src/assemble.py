@@ -16,5 +16,5 @@ head='''<!DOCTYPE html>
 <style>'''+css+'''</style>
 </head>
 '''
-out=head+open('body.html',encoding='utf-8').read()+'\n<script id="engine">'+open('engine.js',encoding='utf-8').read()+'</script>\n<!--PEER-->\n<script>\n'+open('ui.js',encoding='utf-8').read().replace('/*@EXTRAS@*/',open('extras.js',encoding='utf-8').read().replace('/*@CLOUD@*/',open('cloud.js',encoding='utf-8').read()).replace('/*@PUZ@*/[]',open('puzzles.json',encoding='utf-8').read().strip()))+'</script>\n</body>\n</html>\n'
+out=head+open('body.html',encoding='utf-8').read()+'\n<script id="engine">'+open('engine.js',encoding='utf-8').read()+'</script>\n<script id="sfsrc" type="text/plain">'+open('stockfish.js',encoding='utf-8').read()+'</script>\n<!--PEER-->\n<script>\n'+open('ui.js',encoding='utf-8').read().replace('/*@EXTRAS@*/',open('extras.js',encoding='utf-8').read().replace('/*@CLOUD@*/',open('cloud.js',encoding='utf-8').read()).replace('/*@PUZ@*/[]',open('puzzles.json',encoding='utf-8').read().strip())).replace('/*@ASSIST@*/',open('assistente.js',encoding='utf-8').read())+'</script>\n</body>\n</html>\n'
 open(os.path.join(D,'..','dist','index.html'),'w',encoding='utf-8').write(out); print(len(out))

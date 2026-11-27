@@ -10,8 +10,8 @@ sdkInfo:
 packageInfo:
   forcedPackageId: '127'
 versionInfo:
-  versionCode: '11'
-  versionName: '3.7'
+  versionCode: '12'
+  versionName: '3.8'
 doNotCompress:
 - resources.arsc
 - arsc

@@ -850,7 +850,7 @@ function backAction(){
   if(!$("ask").hidden){$("askNo").hidden?$("askYes").click():$("askNo").click();return;}
   if(!$("end").hidden){$("end").hidden=true;return;}
   if(screen==="modes"){go(prevScreen==="game"?"menu":prevScreen);return;}
-  if(screen==="bots"||screen==="friends"||screen==="profile"||screen==="history"){go("menu");return;}
+  if(screen==="bots"||screen==="friends"||screen==="profile"||screen==="history"||screen==="assist"){go("menu");return;}
   if(screen!=="game"||!G)return;
   if(G.rv!=null){closeReview();return;}
   if(G.kind==="online"&&!G.end)
@@ -1071,7 +1071,7 @@ function dailyRecv(fid,g){
 
 /* ---- início ---- */
 /* ---- atualização via GitHub Releases ---- */
-const APPV="3.7", UPD_REPO="pprotiopp-lab/xeque-combo";
+const APPV="3.8", UPD_REPO="pprotiopp-lab/xeque-combo";
 const verNum=v=>String(v||"").replace(/^[^0-9]*/,"").split(".").map(n=>parseInt(n,10)||0);
 const verNewer=(a,b)=>{const x=verNum(a),y=verNum(b);for(let i=0;i<Math.max(x.length,y.length);i++){const p=x[i]||0,q=y[i]||0;if(p!==q)return p>q;}return false;};
 let updUrl="";
@@ -1112,6 +1112,7 @@ function start(data){
   else go(data&&["bots","friends","profile","modes","history"].includes(data.screen)?data.screen:"menu");
 }
 /*@EXTRAS@*/
+/*@ASSIST@*/
 try{window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude.hot.snapshot(()=>({screen,G:G&&(G.kind==="bot"||G.kind==="local")&&!G.end?{kind:G.kind,mode:G.mode,bot:G.bot,my:G.my,spin:G.spin,tl:G.tl,clock:G.clock}:null}));}catch(e){}
 if(window.claude&&window.claude.hot&&window.claude.hot.ready)window.claude.hot.ready(start); else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{});
 

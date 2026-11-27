@@ -38,3 +38,6 @@ Login com Google + salvamento do progresso na nuvem (Firebase, projeto `xadrez-f
 
 ### Login com Google dentro do app (v3.6)
 O Google bloqueia login em WebView, então o clique do Google acontece no navegador: o app abre `.../xeque-combo/?app=1`, a página faz o login e devolve o token por `xequecombo://auth?t=...` (intent-filter no manifest, `Bridge.smali` entrega o token ao JavaScript). O app então entra no Firebase com `signInWithCredential`. Testado no emulador com um token falso (o Firebase respondeu `auth/invalid-credential`, ou seja, o caminho todo funciona). Limitação conhecida: o esquema `xequecombo://` não é verificado como um App Link, então outro app instalado poderia tentar interceptar o token (que vale por ~1 hora e só serve para este projeto).
+
+## Assistente de lances (v3.8)
+Tela nova no menu: monte uma posição (ou cole um FEN) e o Stockfish 10 (asm.js, embutido em `src/stockfish.js`, licença GPLv3 em `src/STOCKFISH-COPYING.txt`) mostra o melhor lance, a avaliação e mais 2 opções com setas no tabuleiro. Código em `src/assistente.js`. Se o aparelho não abrir o Worker do Stockfish, usa a IA do próprio jogo. É uma ferramenta de análise e treino, não vê a tela de outros apps.

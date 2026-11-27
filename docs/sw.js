@@ -1,5 +1,5 @@
 /* Service worker: abre offline e sempre tenta pegar a versão nova primeiro. */
-const C="xeque-combo-3.7",FILES=["./","index.html","peerjs.min.js","icon-192.png","icon-512.png"];
+const C="xeque-combo-3.8",FILES=["./","index.html","peerjs.min.js","icon-192.png","icon-512.png"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()));});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()));});
 self.addEventListener("fetch",e=>{
