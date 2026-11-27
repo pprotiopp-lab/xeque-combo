@@ -19,10 +19,27 @@
     <button class="mbtn" id="mPuz"><span class="ic">&#9822;&#xFE0E;</span><span><b>Puzzle do dia</b><small id="mPuzTxt"></small></span></button>
     <button class="mbtn" id="mBots"><span class="ic">&#9818;&#xFE0E;</span><span><b>Treino com IAs</b><small>15 adversárias, cada uma com um estilo</small></span></button>
     <button class="mbtn" id="mLocal"><span class="ic">&#9820;&#xFE0E;</span><span><b>2 jogadores</b><small>No mesmo celular, o tabuleiro gira a cada lance</small></span></button>
+    <button class="mbtn" id="mAssist"><span class="ic">&#9812;&#xFE0E;</span><span><b>Assistente de lances</b><small>Monte uma posição e veja o melhor lance (Stockfish)</small></span></button>
     <button class="mbtn" id="mHist"><span class="ic">&#9819;&#xFE0E;</span><span><b>Histórico</b><small>Reveja e analise suas últimas partidas</small></span></button>
     <button class="mbtn" id="mModes"><span class="ic">&#9821;&#xFE0E;</span><span><b>Modos</b><small id="mModeTxt"></small></span></button>
   </div>
   <div class="foot"><button class="chip snd" aria-pressed="true">Som</button><button class="chip" id="verBtn"></button></div>
+</main>
+
+<!-- ===== ASSISTENTE ===== -->
+<main class="screen" id="assist">
+  <div class="bar"><button class="back" data-back>&#8249; Menu</button><h2>Assistente de lances</h2><span class="tag cool">Análise</span></div>
+  <p class="hint">Toque numa peça de baixo e depois nas casas para montar a posição. Para treinar e analisar. Não use em partida valendo contra outra pessoa.</p>
+  <div id="asBoard" aria-label="Tabuleiro de análise"></div>
+  <div id="asPal" class="aspal" role="group" aria-label="Peças"></div>
+  <div class="pbtns"><button class="chip" id="asTurnW" aria-pressed="true">Vez das brancas</button><button class="chip" id="asTurnB" aria-pressed="false">Vez das pretas</button></div>
+  <div class="pbtns"><button class="chip" id="asStart">Posição inicial</button><button class="chip" id="asClear">Limpar</button><button class="chip" id="asFlip">Virar tabuleiro</button></div>
+  <div class="pbtns" id="asTime"><button class="chip" data-ms="1000" aria-pressed="false">Rápido</button><button class="chip" data-ms="3000" aria-pressed="true">Normal</button><button class="chip" data-ms="8000" aria-pressed="false">Profundo</button></div>
+  <button class="btn main" id="asGo">Melhor lance</button>
+  <p id="asMsg" aria-live="polite"></p>
+  <div id="asRes"></div>
+  <span class="lbl">FEN da posição (dá pra colar de outro app)</span>
+  <div class="asfen"><input id="asFen" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" aria-label="FEN"><button class="btn" id="asApply">Aplicar</button></div>
 </main>
 
 <!-- ===== MODOS ===== -->

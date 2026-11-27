@@ -180,3 +180,26 @@ body[data-bd="1"] .sq i,body[data-bd="2"] .sq i,body[data-bd="3"] .sq i,body[dat
 .av.fr6{box-shadow:0 0 0 2px #ffd45e,0 0 0 4px #62e0ff,0 0 14px rgba(255,212,94,.8)}
 body[data-bd="8"]{--stage:#101a3d;--stage-hi:#233a7a}
 body[data-bd="8"] .board-wrap{background:linear-gradient(135deg,#ffd45e,#ff86b8 55%,#62e0ff)}
+
+/* ===== Assistente de lances ===== */
+body[data-screen="assist"] #assist{display:flex}
+#asBoard{position:relative;display:grid;grid-template-columns:repeat(8,1fr);aspect-ratio:1;width:100%;max-width:520px;margin:0 auto;border-radius:14px;overflow:hidden;background:var(--stage);container-type:inline-size}
+.asq{position:relative;display:flex;align-items:center;justify-content:center;padding:0;width:100%;height:100%}
+.asq.l{background:var(--stage-hi)} .asq.d{background:var(--stage)}
+.ap{font-size:10.5cqw;line-height:1;pointer-events:none}
+.ap.w{color:#fff;text-shadow:0 0 2px #1a0f33,0 0 2px #1a0f33,0 1px 3px #1a0f33}
+.ap.b{color:#150d2b;text-shadow:0 0 2px #cfc6ee}
+#asArrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.aspal{display:grid;grid-template-columns:repeat(13,1fr);gap:4px;max-width:520px;width:100%;margin:0 auto}
+.apb{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:10px;background:rgba(255,255,255,.08);font-size:clamp(16px,6vw,28px);line-height:1;padding:0}
+.apb.w{color:#fff} .apb.b{color:#b9a8ee} .apb.x{font-size:16px;color:var(--rosa)}
+.apb[aria-pressed="true"]{background:var(--rosa);box-shadow:0 0 0 2px var(--ouro)}
+.apb.b[aria-pressed="true"]{color:#150d2b}
+#asMsg{min-height:1.2em;color:var(--ouro);font-size:14px}
+#asRes{display:flex;flex-direction:column;gap:8px}
+.asinfo{font-size:12px;color:var(--nevoa)}
+.asline{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.07);font-size:15px}
+.asline.best{background:rgba(98,224,255,.16);border:1px solid var(--ciano)}
+.asline b{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--nevoa)}
+.asline em{font-style:normal;font-weight:700;color:var(--ouro);font-size:14px}
+.asfen{display:flex;gap:8px} .asfen input{flex:1;min-width:0;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.08);color:inherit;border:1px solid rgba(255,255,255,.14);font-size:13px}
